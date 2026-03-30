@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./Navbar.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 /* ── Static mega-menu data ───────────────────────────────────── */
 const ITEM_SECTIONS = [

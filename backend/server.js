@@ -84,8 +84,8 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       httpOnly: true,
-      sameSite: "lax",
-      secure: false, // Set to true in production with HTTPS
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
     },
   })
 );
@@ -129,37 +129,19 @@ io.on("connection", (socket) => {
   });
 });
 
+// Health check
+app.get("/", (req, res) => res.json({ message: "Thriftly API is running." }));
+
 // ── Connect to MongoDB and start server ───────────────────
 const PORT = process.env.PORT || 5000;
-const HOST = process.env.HOST || "0.0.0.0"; // Bind to all interfaces for Railway
 
-// Health check - respond immediately even if DB is connecting
-app.get("/", (req, res) => res.json({ message: "Thriftly API is running.", status: "ok" }));
-
-// Graceful startup with retry logic for MongoDB
-const startServer = async () => {
-  const maxRetries = 5;
-  let retries = 0;
-  
-  while (retries < maxRetries) {
-    try {
-      await mongoose.connect(process.env.MONGO_URI);
-      console.log("✅ Connected to MongoDB");
-      break;
-    } catch (err) {
-      retries++;
-      console.error(`❌ MongoDB connection attempt ${retries} failed:`, err.message);
-      if (retries >= maxRetries) {
-        console.error("❌ Max retries reached. Starting server without DB...");
-        break;
-      }
-      await new Promise(r => setTimeout(r, 5000)); // Wait 5s before retry
-    }
-  }
-  
-  httpServer.listen(PORT, HOST, () => {
-    console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+    httpServer.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1);
   });
-};
-
-startServer();

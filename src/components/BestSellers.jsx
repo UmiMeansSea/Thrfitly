@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./BestSellers.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 function ItemCard({ item, delay, onItemClick }) {
   const displayItem = {
@@ -18,7 +18,7 @@ function ItemCard({ item, delay, onItemClick }) {
     <div className={`bestseller-card reveal reveal-delay-${delay}`} onClick={() => onItemClick?.(item)}>
       <div className="bestseller-card-image">
         {displayItem.image ? (
-          <img src={`http://localhost:5000${displayItem.image}`} alt={displayItem.name} />
+          <img src={`${IMG_BASE}${displayItem.image}`} alt={displayItem.name} />
         ) : (
           <div className="bestseller-card-placeholder">📦</div>
         )}

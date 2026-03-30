@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import "./AllShopsDirectory.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 export default function AllShopsDirectory({ onBack, onShopClick, filterTag = null }) {
   const [shops, setShops] = useState([]);

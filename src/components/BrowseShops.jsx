@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import "./BrowseShops.css";
 
-const API = "http://localhost:5000/api";
-const IMG_BASE = "http://localhost:5000";
+
+import { API_BASE as API, IMG_BASE } from "../config.js";
 const FILTERS = ["All", "Vintage", "Streetwear", "Luxury Resale", "Kids & Baby", "Accessories", "Near Me"];
 
 function imgSrc(url) {

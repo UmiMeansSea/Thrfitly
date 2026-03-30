@@ -2,7 +2,7 @@ import { useState, useRef, useMemo, useEffect } from "react";
 import { SHOPS } from "../data";
 import "./SearchPage.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 // ── Text-based search ────────────────────────────────────────────────────────
 function scoreProduct(product, query) {
@@ -115,7 +115,7 @@ function ProductCard({ product, onProductClick }) {
   const shopName = shop?.name || product.sellerId?.shopName || product.shopName || "—";
   const rawImg = product.images?.[0];
   const imageUrl = rawImg
-    ? (rawImg.startsWith("http") ? rawImg : `http://localhost:5000${rawImg}`)
+    ? (rawImg.startsWith("http") ? rawImg : `${IMG_BASE}${rawImg}`)
     : null;
   const palette = product.palette || "linear-gradient(135deg,#C9B99A 0%,#A08060 100%)";
 

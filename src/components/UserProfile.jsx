@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./UserProfile.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 export default function UserProfile({
   user, onClose, onUpdate,

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./Login.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 export default function Login({ onBack, onLoginSuccess }) {
   const [mode, setMode] = useState("login"); // "login" | "register"

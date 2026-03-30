@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import "./MessagesPage.css";
 
-const API_BASE = "http://localhost:5000/api";
+import { API_BASE, API_ORIGIN } from "../config.js";
 
 export default function MessagesPage({ user, initialChatContext, onBack }) {
   const [conversations, setConversations] = useState([]);
@@ -12,7 +12,7 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
   const [senderNames, setSenderNames] = useState({}); // Phase 5: Cache sender names
   const messagesEndRef = useRef(null);
 
-  const socket = useMemo(() => io("http://localhost:5000", { withCredentials: true }), []);
+  const socket = useMemo(() => io(API_ORIGIN, { withCredentials: true }), []);
 
   useEffect(() => () => socket.disconnect(), [socket]);
 

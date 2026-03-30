@@ -4,14 +4,14 @@ import { getListingStockCap } from "../utils/stock";
 import "./ProductDetail.css";
 
 const CONDITIONS = { Excellent: 5, "Very Good": 4, Good: 3 };
-const IMG_BASE = "http://localhost:5000";
+
 const CONDITION_DESC = {
   Excellent: "No visible wear. Like new.",
   "Very Good": "Minor signs of wear. Well cared for.",
   Good: "Normal wear consistent with age.",
 };
 
-const API_BASE = "http://localhost:5000/api";
+import { API_BASE, IMG_BASE } from "../config.js";
 
 export default function ProductDetail({
   product, onBackToShop, onRelatedProduct, onShopClick,
@@ -153,7 +153,7 @@ export default function ProductDetail({
     if (!user || !productId) return;
     try {
       const res = await fetch(
-        `http://localhost:5000/api/auth/wishlist/${encodeURIComponent(productId)}`,
+        `${API_BASE}/auth/wishlist/${encodeURIComponent(productId)}`,
         { method: inWishlist ? "DELETE" : "POST", credentials: "include" }
       );
       if (!res.ok) return;

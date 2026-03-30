@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./AccountPage.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 export default function AccountPage({
   user,

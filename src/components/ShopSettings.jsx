@@ -3,7 +3,7 @@ import ImageCropModal from "./ImageCropModal";
 import { assetUrl } from "../utils/assetUrl";
 import "./ShopSettings.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 export default function ShopSettings({ onBack, user }) {
   const [loading, setLoading] = useState(true);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./ListItem.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 export default function ListItem({ onBack, user, onViewMyShop, onViewItem }) {
   const [items, setItems] = useState([]);
@@ -280,7 +280,7 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem }) {
                       return (
                         <div key={idx} className={`listitem-preview-item ${isMarkedForDelete ? 'marked-delete' : ''}`}>
                           <img 
-                            src={`http://localhost:5000${imgPath}`} 
+                            src={`${IMG_BASE}${imgPath}`} 
                             alt={`Current ${idx + 1}`} 
                             className="listitem-preview" 
                             style={{ opacity: isMarkedForDelete ? 0.4 : 1 }}
@@ -367,7 +367,7 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem }) {
                     style={{ cursor: "pointer" }}
                   >
                     {item.images?.[0] && (
-                      <img src={`http://localhost:5000${item.images[0]}`} alt={item.name} className="listitem-card-img" />
+                      <img src={`${IMG_BASE}${item.images[0]}`} alt={item.name} className="listitem-card-img" />
                     )}
                     <div className="listitem-card-info">
                       <p className="listitem-card-title">{item.name}</p>

@@ -3,7 +3,7 @@ import { assetUrl } from "../utils/assetUrl";
 import StarRating from "./StarRating";
 import "./ShopDetail.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 const CONDITIONS = { Excellent: 5, "Very Good": 4, Good: 3, "New with tags": 5, "Like new": 4, "Like New": 4, Fair: 2, "Well loved": 2 };
 

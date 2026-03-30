@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./Signup.css";
 
-const API = "http://localhost:5000/api";
+import { API_BASE as API, IMG_BASE } from "../config.js";
 
 const PERKS = [
   { icon: "🌱", title: "Free to Start",       text: "No credit card needed. List up to 20 products at zero cost." },
