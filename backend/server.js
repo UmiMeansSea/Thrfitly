@@ -59,10 +59,15 @@ app.use((req, _res, next) => {
   next();
 });
 
+// Get allowed origins from env or default to localhost
+const corsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",")
+  : ["http://localhost:5173", "http://localhost:5174"];
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"], // Vite dev server (may pick either port)
-    credentials: true,               // Allow cookies to be sent
+    origin: corsOrigins,
+    credentials: true,
   })
 );
 
@@ -86,9 +91,10 @@ app.use(
 );
 
 // ── Static uploads ─────────────────────────────────────────
-// Serve with explicit CORS headers so images load from Vite dev server
+// Serve with explicit CORS headers so images load from frontend
+const uploadsCorsOrigin = process.env.CORS_ORIGIN?.split(",")[0] || "http://localhost:5173";
 app.use("/uploads", (req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.header("Access-Control-Allow-Origin", uploadsCorsOrigin);
   res.header("Access-Control-Allow-Methods", "GET");
   res.header("Cross-Origin-Resource-Policy", "cross-origin");
   next();
@@ -106,7 +112,7 @@ app.use("/api/search", searchRoutes);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: corsOrigins,
     credentials: true,
   },
 });
@@ -127,11 +133,13 @@ io.on("connection", (socket) => {
 app.get("/", (req, res) => res.json({ message: "Thriftly API is running." }));
 
 // ── Connect to MongoDB and start server ───────────────────
+const PORT = process.env.PORT || 5000;
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ Connected to MongoDB");
-    httpServer.listen(5000, () => console.log("🚀 Server running on http://localhost:5000"));
+    httpServer.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   })
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err.message);
