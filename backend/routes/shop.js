@@ -61,7 +61,8 @@ async function ensureSellerSlug(seller) {
 const SITE_NAME = "Thriftly";
 const SITE_URL  = process.env.APP_URL || "http://localhost:5000";
 const API_PUBLIC = process.env.API_PUBLIC_URL || "http://localhost:5000";
-const ADMIN_EMAIL = process.env.EMAIL_USER; // admin gets approval emails at this address
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.EMAIL_USER; // admin gets approval emails at this address
+
 
 function absUploadUrl(url) {
   if (!url) return "";
