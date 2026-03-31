@@ -62,7 +62,7 @@ async function ensureSellerSlug(seller) {
 const SITE_NAME = "Thriftly";
 const SITE_URL  = process.env.APP_URL || "http://localhost:5000";
 const API_PUBLIC = process.env.API_PUBLIC_URL || "http://localhost:5000";
-const ADMIN_EMAIL = process.env.EMAIL_USER; // admin gets approval emails at this address
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "aniketkarjee0210@gmail.com"; // admin gets approval emails at this address
 
 function absUploadUrl(url) {
   if (!url) return "";
@@ -76,7 +76,7 @@ async function sendApprovedSellerEmail({ email, firstName, shopName, tempPasswor
   if (!process.env.RESEND_API_KEY) return;
   try {
     await resend.emails.send({
-      from: `"Thriftly" <${process.env.EMAIL_USER}>`,
+      from: "Thriftly <onboarding@resend.dev>",
       to: email,
       subject: `Your shop "${shopName}" is approved`,
       html: `
@@ -248,7 +248,7 @@ router.post("/request", async (req, res) => {
 
     // ── Admin notification email ────────────────────────────
     await resend.emails.send({
-      from: `"Thriftly Admin" <${process.env.EMAIL_USER}>`,
+      from: "Thriftly Admin <onboarding@resend.dev>",
       to: ADMIN_EMAIL,
       subject: `🛍️ New Shop Request: ${shopName}`,
       html: `
@@ -392,7 +392,7 @@ router.get("/reject/:rejectToken", async (req, res) => {
 
     // ── Email the applicant ─────────────────────────────────
     await resend.emails.send({
-      from: `"Thriftly" <${process.env.EMAIL_USER}>`,
+      from: "Thriftly <onboarding@resend.dev>",
       to: shopReq.email,
       subject: `Update on your shop application — ${SITE_NAME}`,
       html: `

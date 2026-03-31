@@ -170,7 +170,7 @@ router.post("/conversations/get-or-create", async (req, res) => {
                 .map((l) => `• ${l.name} x${l.quantity} — P${(l.price * l.quantity).toLocaleString()}`)
                 .join("\n");
               await resend.emails.send({
-                from: `"Thriftly" <${process.env.EMAIL_USER}>`,
+                from: "Thriftly <onboarding@resend.dev>",
                 to: sellerEmail,
                 subject: "New checkout from a buyer",
                 text: `A buyer completed checkout and sent this cart:\n\n${lines}\n\nTotal: P${checkoutTotal.toLocaleString()}\n\nPlease log in to Thriftly to coordinate the sale.`,
@@ -217,7 +217,7 @@ router.post("/conversations/get-or-create", async (req, res) => {
             }
             if (sellerEmail) {
               await resend.emails.send({
-                from: `"Thriftly" <${process.env.EMAIL_USER}>`,
+                from: "Thriftly <onboarding@resend.dev>",
                 to: sellerEmail,
                 subject: "Buyer purchase intent",
                 text: `A buyer wants to buy ${productName || "an item"}. Please log in to Thriftly to coordinate the sale.`,

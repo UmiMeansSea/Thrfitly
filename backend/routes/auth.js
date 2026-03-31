@@ -14,7 +14,7 @@ const SITE_URL  = process.env.APP_URL || "http://localhost:5173";
 
 
 async function sendWelcomeEmail(toEmail, userName) {
-  if (!process.env.EMAIL_PASS) return;
+  if (!process.env.RESEND_API_KEY) return;
   try {
     await resend.emails.send({
       from: "Thriftly <onboarding@resend.dev>",
