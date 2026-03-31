@@ -22,11 +22,21 @@ if (!process.env.RESEND_FROM_EMAIL) {
   console.warn("⚠️  RESEND_FROM_EMAIL is not set in .env — welcome emails will fail.");
 }
 
+const transporter = require("nodemailer").createTransport({
+  service: "gmail",
+  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+});
+
+// Verify transporter config at startup (non-blocking)
+transporter.verify()
+  .then(() => console.log("✅ Email transporter is ready"))
+  .catch((err) => console.error("❌ Email transporter config error:", err.message, "\n   → Make sure EMAIL_PASS is a Gmail App Password (16 chars), NOT your regular password."));
+
 async function sendWelcomeEmail(toEmail, userName) {
   try {
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL,
-      to: [toEmail],
+    await transporter.sendMail({
+      from:    `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
+      to:      toEmail,
       subject: `You're in! Welcome to ${SITE_NAME} 👋`,
       html: `
         <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;padding:40px 24px;color:#2d2416;">
@@ -46,7 +56,11 @@ async function sendWelcomeEmail(toEmail, userName) {
           <p style="font-size:15px;line-height:1.7;color:#4a3f2f;">Cheers,<br/>The ${SITE_NAME} Team</p>
           <hr style="border:none;border-top:1px solid #e5e0d5;margin:32px 0 16px;" />
           <p style="font-size:12px;color:#9a917f;">
+<<<<<<< HEAD
             P.S. If you did not create an account please mail
+=======
+            P.S: If you did not create an account please mail
+>>>>>>> 63fbedd25f8cf6cf7a778668d42f54b37130ce24
             <a href="mailto:thriftly26@gmail.com" style="color:#5c6b3a;">thriftly26@gmail.com</a>
           </p>
         </div>
@@ -95,9 +109,15 @@ async function sendOrderEmailToSeller({ sellerEmail, buyerName, buyerContactInfo
   `;
 
   try {
+<<<<<<< HEAD
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: [sellerEmail],
+=======
+    await transporter.sendMail({
+      from: `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
+      to: sellerEmail,
+>>>>>>> 63fbedd25f8cf6cf7a778668d42f54b37130ce24
       subject: "New buyer checkout on Thriftly",
       html,
     });
@@ -109,11 +129,19 @@ async function sendOrderEmailToSeller({ sellerEmail, buyerName, buyerContactInfo
 async function sendPurchaseIntentEmailToSeller({ sellerEmail, buyerUsername, itemName }) {
   if (!sellerEmail) return;
   try {
+<<<<<<< HEAD
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: [sellerEmail],
       subject: "Buyer purchase intent",
       text: `@${buyerUsername} wants to buy ${itemName}. Please log in to website to coordinate the sale.`,
+=======
+    await transporter.sendMail({
+      from: `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
+      to: sellerEmail,
+      subject: "Buyer purchase intent",
+      text: `@${buyerUsername} wants to buy ${itemName}. Please log in to the website to coordinate the sale.`,
+>>>>>>> 63fbedd25f8cf6cf7a778668d42f54b37130ce24
     });
   } catch (err) {
     console.error("Purchase intent email failed:", err.message);
