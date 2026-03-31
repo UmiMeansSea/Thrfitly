@@ -4,7 +4,8 @@ const crypto     = require("crypto");
 const path       = require("path");
 const fs         = require("fs");
 const multer     = require("multer");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 const ShopRequest = require("../models/ShopRequest");
 const Seller     = require("../models/Seller");
 const User       = require("../models/User");
@@ -68,15 +69,13 @@ function absUploadUrl(url) {
   return `${API_PUBLIC}${String(url).startsWith("/") ? "" : "/"}${url}`;
 }
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-});
+
 
 async function sendApprovedSellerEmail({ email, firstName, shopName, tempPassword }) {
+  if (!process.env.RESEND_API_KEY) return;
   try {
-    await transporter.sendMail({
-      from: `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: `Thriftly <onboarding@resend.dev>`,
       to: email,
       subject: `Your shop "${shopName}" is approved`,
       html: `
@@ -91,9 +90,6 @@ async function sendApprovedSellerEmail({ email, firstName, shopName, tempPasswor
             <p style="margin:4px 0;font-size:14px;"><strong>Temporary Password:</strong> <code style="background:#fff;padding:2px 6px;border-radius:4px;">${tempPassword}</code></p>
           </div>
           <p style="font-size:14px;color:#c0392b;">Please change your password after first login.</p>
-          <div style="text-align:center;margin:32px 0;">
-            <a href="http://localhost:5173" style="display:inline-block;padding:14px 32px;background:#5c6b3a;color:#faf6ec;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px;">Login to Thriftly</a>
-          </div>
         </div>
       `,
     });
@@ -250,9 +246,9 @@ router.post("/request", async (req, res) => {
     const rejectUrl  = `${SITE_URL}/api/shop/reject/${rejectToken}`;
 
     // ── Admin notification email ────────────────────────────
-    await transporter.sendMail({
-      from:    `"${SITE_NAME} Admin" <${process.env.EMAIL_USER}>`,
-      to:      ADMIN_EMAIL,
+    await resend.emails.send({
+      from: "Thriftly Admin <onboarding@resend.dev>",
+      to: ADMIN_EMAIL,
       subject: `🛍️ New Shop Request: ${shopName}`,
       html: `
         <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:620px;margin:0 auto;padding:32px 24px;color:#2d2416;">
@@ -394,9 +390,9 @@ router.get("/reject/:rejectToken", async (req, res) => {
     await shopReq.save();
 
     // ── Email the applicant ─────────────────────────────────
-    await transporter.sendMail({
-      from:    `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
-      to:      shopReq.email,
+    await resend.emails.send({
+      from: "Thriftly <onboarding@resend.dev>",
+      to: shopReq.email,
       subject: `Update on your shop application — ${SITE_NAME}`,
       html: `
         <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;padding:40px 24px;color:#2d2416;">
