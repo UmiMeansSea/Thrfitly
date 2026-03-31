@@ -1,6 +1,6 @@
 const express    = require("express");
 const router     = express.Router();
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 const mongoose   = require("mongoose");
 const User       = require("../models/User");
 const Seller     = require("../models/Seller");
@@ -9,19 +9,20 @@ const Order      = require("../models/Order");
 const Item       = require("../models/Item");
 
 const SITE_NAME = "Thriftly";
-const SITE_URL  = "http://localhost:5173";
+const SITE_URL  = process.env.APP_URL || "http://localhost:5173";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-if (!process.env.RESEND_API_KEY) {
-  console.warn("⚠️  RESEND_API_KEY is not set — emails will be skipped.");
-}
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || "smtp-relay.brevo.com",
+  port: parseInt(process.env.EMAIL_PORT || "587"),
+  secure: false,
+  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+});
 
 async function sendWelcomeEmail(toEmail, userName) {
-  if (!process.env.RESEND_API_KEY) return;
+  if (!process.env.EMAIL_PASS) return;
   try {
-    await resend.emails.send({
-      from: "Thriftly <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject: `You're in! Welcome to ${SITE_NAME} 👋`,
       html: `
@@ -85,8 +86,8 @@ async function sendOrderEmailToSeller({ sellerEmail, buyerName, buyerContactInfo
   `;
 
   try {
-    await resend.emails.send({
-      from: "Thriftly <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
       to: sellerEmail,
       subject: "New buyer checkout on Thriftly",
       html,
@@ -97,10 +98,10 @@ async function sendOrderEmailToSeller({ sellerEmail, buyerName, buyerContactInfo
 }
 
 async function sendPurchaseIntentEmailToSeller({ sellerEmail, buyerUsername, itemName }) {
-  if (!sellerEmail || !process.env.RESEND_API_KEY) return;
+  if (!sellerEmail || !process.env.EMAIL_PASS) return;
   try {
-    await resend.emails.send({
-      from: "Thriftly <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
       to: sellerEmail,
       subject: "Buyer purchase intent",
       text: `@${buyerUsername} wants to buy ${itemName}. Please log in to the website to coordinate the sale.`,

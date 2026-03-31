@@ -4,8 +4,14 @@ const crypto     = require("crypto");
 const path       = require("path");
 const fs         = require("fs");
 const multer     = require("multer");
-const { Resend } = require("resend");
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || "smtp-relay.brevo.com",
+  port: parseInt(process.env.EMAIL_PORT || "587"),
+  secure: false,
+  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+});
 const ShopRequest = require("../models/ShopRequest");
 const Seller     = require("../models/Seller");
 const User       = require("../models/User");
@@ -61,8 +67,7 @@ async function ensureSellerSlug(seller) {
 const SITE_NAME = "Thriftly";
 const SITE_URL  = process.env.APP_URL || "http://localhost:5000";
 const API_PUBLIC = process.env.API_PUBLIC_URL || "http://localhost:5000";
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.EMAIL_USER; // admin gets approval emails at this address
-
+const ADMIN_EMAIL = process.env.EMAIL_USER; // admin gets approval emails at this address
 
 function absUploadUrl(url) {
   if (!url) return "";
@@ -75,8 +80,8 @@ function absUploadUrl(url) {
 async function sendApprovedSellerEmail({ email, firstName, shopName, tempPassword }) {
   if (!process.env.RESEND_API_KEY) return;
   try {
-    await resend.emails.send({
-      from: `Thriftly <onboarding@resend.dev>`,
+    await transporter.sendMail({
+      from: `"Thriftly" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: `Your shop "${shopName}" is approved`,
       html: `
@@ -247,8 +252,8 @@ router.post("/request", async (req, res) => {
     const rejectUrl  = `${SITE_URL}/api/shop/reject/${rejectToken}`;
 
     // ── Admin notification email ────────────────────────────
-    await resend.emails.send({
-      from: "Thriftly Admin <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"Thriftly Admin" <${process.env.EMAIL_USER}>`,
       to: ADMIN_EMAIL,
       subject: `🛍️ New Shop Request: ${shopName}`,
       html: `
@@ -391,8 +396,8 @@ router.get("/reject/:rejectToken", async (req, res) => {
     await shopReq.save();
 
     // ── Email the applicant ─────────────────────────────────
-    await resend.emails.send({
-      from: "Thriftly <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"Thriftly" <${process.env.EMAIL_USER}>`,
       to: shopReq.email,
       subject: `Update on your shop application — ${SITE_NAME}`,
       html: `
