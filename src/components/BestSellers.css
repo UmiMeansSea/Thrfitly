@@ -201,3 +201,7 @@
     height: 180px;
   }
 }
+
+@media (max-width: 1024px) { #best-sellers { padding: 80px 40px; } }
+@media (max-width: 768px)  { #best-sellers { padding: 60px 24px; } }
+@media (max-width: 480px)  { #best-sellers { padding: 48px 16px; } }

@@ -247,3 +247,52 @@
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   RESPONSIVE NAVBAR
+   ════════════════════════════════════════════════════════════════ */
+
+/* Tablet — hide center links, tighten padding */
+@media (max-width: 1024px) {
+  .navbar { padding: 0 var(--px-md, 40px); }
+  .nav-links { gap: 24px; }
+  .mega-cols { padding: 32px 40px; gap: 48px; }
+}
+
+/* Mobile — hamburger menu */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 var(--px-sm, 24px);
+    height: 60px;
+  }
+
+  /* Hide desktop links & mega triggers */
+  .nav-links,
+  .btn-nav-ghost,
+  .btn-nav-fill,
+  .btn-nav-search { display: none !important; }
+
+  /* Show only cart + user on mobile */
+  .nav-actions { gap: 6px; }
+
+  /* Mega menus become full-width drawers */
+  .mega-menu {
+    flex-direction: column;
+    min-height: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .mega-hero { width: 100%; height: 180px; }
+  .mega-cols {
+    flex-direction: column;
+    padding: 24px var(--px-sm, 24px);
+    gap: 28px;
+  }
+  .mega-backdrop { top: 60px; }
+}
+
+@media (max-width: 480px) {
+  .navbar { padding: 0 16px; }
+  .nav-logo-text { font-size: 18px; }
+  .nav-user-name-text { display: none; }
+}

@@ -568,3 +568,22 @@
   padding-top: 8px;
   border-top: 1px solid rgba(45,36,22,0.06);
 }
+
+/* ════════════════════════════════ RESPONSIVE ════════════════════════════════ */
+@media (max-width: 1024px) {
+  .sd-topbar { padding: 14px 40px; }
+  .sd-header { padding: 0 40px; }
+  .sd-body   { padding: 32px 40px 60px; gap: 32px; }
+}
+
+@media (max-width: 768px) {
+  .sd-topbar { padding: 12px 24px; }
+  .sd-header { padding: 0 24px; }
+  .sd-body   { grid-template-columns: 1fr; padding: 24px 24px 48px; }
+}
+
+@media (max-width: 480px) {
+  .sd-topbar { padding: 12px 16px; }
+  .sd-header { padding: 0 16px; }
+  .sd-body   { padding: 20px 16px 40px; }
+}

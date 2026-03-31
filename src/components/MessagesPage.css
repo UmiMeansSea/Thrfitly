@@ -217,3 +217,9 @@
   color: #7c6a50;
   font-size: 0.95rem;
 }
+
+@media (max-width: 768px) {
+  .messages-layout { flex-direction: column; height: auto; }
+  .messages-sidebar { width: 100%; height: auto; max-height: 280px; border-right: none; border-bottom: 1px solid rgba(45,36,22,0.08); }
+  .messages-chat { height: 60vh; }
+}

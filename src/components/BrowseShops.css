@@ -103,3 +103,22 @@
   color: var(--soil); cursor: pointer; transition: all 0.2s;
 }
 .btn-load-more:hover { background: var(--soil); color: var(--cream); border-color: var(--soil); }
+
+/* ════════════════════════════════ RESPONSIVE ════════════════════════════════ */
+@media (max-width: 1024px) {
+  #browse { padding: 80px var(--px-md, 40px); }
+  .shops-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+}
+
+@media (max-width: 768px) {
+  #browse { padding: 60px 24px; }
+  .browse-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .shops-grid { grid-template-columns: 1fr; gap: 16px; }
+  .browse-filters { gap: 8px; }
+  .filter-btn { padding: 7px 16px; font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+  #browse { padding: 48px 16px; }
+  .shop-card-body { padding: 32px 18px 18px; }
+}

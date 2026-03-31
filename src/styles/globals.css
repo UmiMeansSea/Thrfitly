@@ -1,15 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
 
-/* ── Responsive breakpoints ── */
-:root {
-  --mobile: 480px;
-  --tablet: 768px;
-  --desktop: 1024px;
-  --large: 1200px;
-}
-
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
+/* ── CSS Variables ── */
 :root {
   --soil:       #2D2416;
   --bark:       #4A3728;
@@ -22,68 +13,66 @@
   --clay:       #C4844A;
   --muted:      #8A7D68;
   --tag-bg:     #EFE6CE;
+
+  /* spacing scale */
+  --px-xs:  16px;
+  --px-sm:  24px;
+  --px-md:  40px;
+  --px-lg:  64px;
+  --px-xl:  80px;
 }
 
-html { scroll-behavior: smooth; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--cream);
   color: var(--soil);
   overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
+
+img, video { max-width: 100%; display: block; }
+button { font-family: inherit; }
+a { text-decoration: none; }
 
 /* ── Responsive typography ── */
-h1 {
-  font-size: clamp(28px, 6vw, 44px);
-}
+h1 { font-size: clamp(28px, 6vw, 52px); line-height: 1.1; }
+h2 { font-size: clamp(22px, 4.5vw, 38px); line-height: 1.15; }
+h3 { font-size: clamp(18px, 3.5vw, 28px); line-height: 1.2; }
+p  { font-size: clamp(14px, 2.5vw, 16px); line-height: 1.7; }
 
-h2 {
-  font-size: clamp(24px, 5vw, 36px);
-}
-
-h3 {
-  font-size: clamp(20px, 4vw, 28px);
-}
-
-p {
-  font-size: clamp(14px, 3vw, 16px);
-  line-height: 1.6;
-}
-
-/* ── Responsive containers ── */
+/* ── Containers ── */
 .container {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--px-sm);
 }
+@media (min-width: 640px)  { .container { padding: 0 var(--px-md); } }
+@media (min-width: 1024px) { .container { padding: 0 var(--px-lg); } }
 
-@media (min-width: 768px) {
-  .container {
-    padding: 0 40px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    padding: 0 64px;
-  }
-}
-
+/* ── Film grain overlay ── */
 body::before {
   content: '';
-  position: fixed; inset: 0; z-index: 1000;
+  position: fixed; inset: 0; z-index: 9999;
   pointer-events: none;
-  opacity: 0.025;
+  opacity: 0.022;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-size: 180px;
 }
 
-/* ── Shared reveal animation ── */
+/* ── Reveal animations ── */
 .reveal {
   opacity: 0;
-  transform: translateY(36px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: translateY(32px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
 }
 .reveal.visible { opacity: 1; transform: none; }
 .reveal-delay-1 { transition-delay: 0.1s; }
@@ -91,38 +80,107 @@ body::before {
 .reveal-delay-3 { transition-delay: 0.3s; }
 .reveal-delay-4 { transition-delay: 0.4s; }
 
-/* ── Shared typography ── */
+/* ── Typography helpers ── */
 .section-eyebrow {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--moss);
-  margin-bottom: 16px;
-  display: block;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--moss);
+  margin-bottom: 14px; display: block;
 }
 .section-title-lg {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(34px, 4.5vw, 54px);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-size: clamp(30px, 4vw, 52px);
+  font-weight: 700; line-height: 1.1; letter-spacing: -0.02em;
 }
 .section-title-lg em { font-style: italic; color: var(--clay); }
 
-/* ── Shared animations ── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(28px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ── Animations ── */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+@keyframes pulse    { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(.75);} }
+@keyframes float    { 0%,100%{transform:translateY(-50%) translateX(0);} 50%{transform:translateY(calc(-50% - 10px)) translateX(0);} }
+@keyframes shimmer  { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+
+/* ── Loading skeleton ── */
+.skeleton {
+  background: linear-gradient(90deg, var(--straw) 25%, var(--parchment) 50%, var(--straw) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
 }
-@keyframes fadeIn {
-  from { opacity: 0; } to { opacity: 1; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--straw); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── Focus styles ── */
+:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
-@keyframes pulse {
-  0%,100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.5; transform: scale(0.75); }
+
+/* ── Global smooth transitions ── */
+button, a, input, textarea, select {
+  transition: all 0.2s ease;
 }
-@keyframes float {
-  0%,100% { transform: translateY(-50%) translateX(0); }
-  50%      { transform: translateY(calc(-50% - 10px)) translateX(0); }
+
+/* ── Card hover lift — applies everywhere ── */
+.shop-card, .pd-related-card, .product-card {
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease !important;
+  will-change: transform;
 }
+
+/* ── Page transition wrapper ── */
+.page-enter {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeUp 0.4s ease forwards;
+}
+
+/* ── Mobile bottom padding (for iOS safari nav bar) ── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  body { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* ── Prevent horizontal overflow on all screens ── */
+section, main, header, footer, nav, div {
+  max-width: 100%;
+}
+
+/* ── Better tap targets on mobile ── */
+@media (max-width: 768px) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .filter-btn, .shop-tag, .pd-tag-pill {
+    min-height: 36px;
+  }
+}
+
+/* ── Grid helpers ── */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(3, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .grid-4, .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Smooth image loading ── */
+img {
+  transition: opacity 0.3s ease;
+}
+img[loading] { opacity: 0; }
+img.loaded   { opacity: 1; }

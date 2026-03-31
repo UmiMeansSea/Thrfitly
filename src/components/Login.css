@@ -243,3 +243,15 @@
 }
 .login-msg-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 .login-msg-success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+
+/* ════════════════════════════════ RESPONSIVE ════════════════════════════════ */
+@media (max-width: 900px) {
+  .login-page { grid-template-columns: 1fr; }
+  .login-panel-left { display: none; }
+  .login-panel-right { padding: 48px 32px; min-height: 100vh; }
+}
+
+@media (max-width: 480px) {
+  .login-panel-right { padding: 40px 20px; }
+  .login-form-wrapper { max-width: 100%; }
+}

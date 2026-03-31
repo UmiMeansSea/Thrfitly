@@ -300,3 +300,35 @@
   background: var(--tag-bg); color: var(--moss); font-weight: 500;
   border: 1px solid rgba(92,107,58,0.2);
 }
+
+/* ════════════════════════════════ RESPONSIVE ════════════════════════════════ */
+@media (max-width: 1024px) {
+  .pd-topbar { padding: 14px var(--px-md, 40px); }
+  .pd-body { padding: 40px var(--px-md, 40px); gap: 48px; }
+  .pd-related { padding: 0 var(--px-md, 40px) 60px; }
+}
+
+@media (max-width: 768px) {
+  .pd-topbar { padding: 12px 24px; }
+  .pd-breadcrumb { display: none; }
+  .pd-body {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 24px 24px 40px;
+  }
+  .pd-gallery { flex-direction: column-reverse; }
+  .pd-thumbs { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
+  .pd-thumb { width: 60px; height: 74px; flex-shrink: 0; }
+  .pd-main-img { aspect-ratio: 4/3; }
+  .pd-cta-row { flex-direction: column; }
+  .pd-wishlist-btn { width: 100%; height: 52px; }
+  .pd-related { padding: 0 24px 48px; }
+  .pd-related-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+}
+
+@media (max-width: 480px) {
+  .pd-body { padding: 16px 16px 32px; }
+  .pd-related { padding: 0 16px 40px; }
+  .pd-related-grid { grid-template-columns: 1fr; }
+  .pd-price { font-size: 28px; }
+}

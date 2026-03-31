@@ -59,3 +59,7 @@
   font-size: 14px; line-height: 1.7;
   color: rgba(250,246,236,0.55); font-weight: 300;
 }
+
+@media (max-width: 1024px) { #how-it-works { padding: 80px 40px; } }
+@media (max-width: 768px)  { #how-it-works { padding: 60px 24px; } }
+@media (max-width: 480px)  { #how-it-works { padding: 48px 16px; } }

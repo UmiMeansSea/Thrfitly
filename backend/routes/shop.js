@@ -307,8 +307,8 @@ router.get("/approve/:token", async (req, res) => {
       return res.status(400).send(page("This request was already rejected.", "#c0392b"));
     }
 
-    // Generate a temporary password
-    const tempPassword = crypto.randomBytes(5).toString("hex"); // e.g. "a1b2c3d4e5"
+    // Fixed temporary password for all approved shops
+    const tempPassword = "123thriftly";
 
     // Check if user already exists (e.g. they were a buyer before)
     let user = await User.findOne({ email: shopReq.email });
