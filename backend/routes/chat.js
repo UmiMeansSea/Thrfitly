@@ -1,17 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 const Conversation = require("../models/Conversation");
 const Message = require("../models/Message");
 const Seller = require("../models/Seller");
 const User = require("../models/User");
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || "smtp-relay.brevo.com",
-  port: parseInt(process.env.EMAIL_PORT || "587"),
-  secure: false,
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-});
 
 function requireAuth(req, res, next) {
   if (!req.session.userId) return res.status(401).json({ message: "Not logged in." });
@@ -174,7 +169,7 @@ router.post("/conversations/get-or-create", async (req, res) => {
               const lines = lineItems
                 .map((l) => `• ${l.name} x${l.quantity} — P${(l.price * l.quantity).toLocaleString()}`)
                 .join("\n");
-              await transporter.sendMail({
+              await resend.emails.send({
                 from: `"Thriftly" <${process.env.EMAIL_USER}>`,
                 to: sellerEmail,
                 subject: "New checkout from a buyer",
@@ -221,7 +216,7 @@ router.post("/conversations/get-or-create", async (req, res) => {
               sellerEmail = sellerUser?.email || "";
             }
             if (sellerEmail) {
-              await transporter.sendMail({
+              await resend.emails.send({
                 from: `"Thriftly" <${process.env.EMAIL_USER}>`,
                 to: sellerEmail,
                 subject: "Buyer purchase intent",
