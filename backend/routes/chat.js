@@ -1,15 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 const Conversation = require("../models/Conversation");
 const Message = require("../models/Message");
 const Seller = require("../models/Seller");
 const User = require("../models/User");
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-});
 
 function requireAuth(req, res, next) {
   if (!req.session.userId) return res.status(401).json({ message: "Not logged in." });
@@ -172,8 +168,8 @@ router.post("/conversations/get-or-create", async (req, res) => {
               const lines = lineItems
                 .map((l) => `• ${l.name} x${l.quantity} — P${(l.price * l.quantity).toLocaleString()}`)
                 .join("\n");
-              await transporter.sendMail({
-                from: `"Thriftly" <${process.env.EMAIL_USER}>`,
+              await resend.emails.send({
+                from: "Thriftly <onboarding@resend.dev>",
                 to: sellerEmail,
                 subject: "New checkout from a buyer",
                 text: `A buyer completed checkout and sent this cart:\n\n${lines}\n\nTotal: P${checkoutTotal.toLocaleString()}\n\nPlease log in to Thriftly to coordinate the sale.`,
@@ -219,8 +215,8 @@ router.post("/conversations/get-or-create", async (req, res) => {
               sellerEmail = sellerUser?.email || "";
             }
             if (sellerEmail) {
-              await transporter.sendMail({
-                from: `"Thriftly" <${process.env.EMAIL_USER}>`,
+              await resend.emails.send({
+                from: "Thriftly <onboarding@resend.dev>",
                 to: sellerEmail,
                 subject: "Buyer purchase intent",
                 text: `A buyer wants to buy ${productName || "an item"}. Please log in to Thriftly to coordinate the sale.`,
