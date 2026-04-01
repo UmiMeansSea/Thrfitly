@@ -56,13 +56,13 @@ router.get("/top-items", async (req, res) => {
       .limit(limit)
       .populate("sellerId", "shopName");
 
-    // Process images with absUrl to handle both local and Cloudinary paths
+    // Process images - filter out old /uploads/ paths and process Cloudinary URLs
     const processedItems = topItems.map((item) => {
       const itemObj = item.toObject();
-      // Filter and process images - only include valid Cloudinary URLs or local paths
+      // Keep only Cloudinary URLs (https://res.cloudinary.com...)
       itemObj.images = (itemObj.images || [])
-        .filter((img) => img && img.trim() !== "") // Remove empty/null
-        .map((img) => absUrl(img)); // Convert local paths to full URLs
+        .filter((img) => img && img.trim() !== "" && img.startsWith("http"))
+        .map((img) => img); // Cloudinary URLs are already complete
       return itemObj;
     });
 
@@ -85,12 +85,12 @@ router.get("/top-items-by-shop/:shopId", async (req, res) => {
       .sort({ viewCount: -1, createdAt: -1 })
       .limit(limit);
 
-    // Process images with absUrl to handle both local and Cloudinary paths
+    // Process images - filter out old /uploads/ paths, keep only Cloudinary URLs
     const processedItems = items.map((item) => {
       const itemObj = item.toObject();
       itemObj.images = (itemObj.images || [])
-        .filter((img) => img && img.trim() !== "")
-        .map((img) => absUrl(img));
+        .filter((img) => img && img.trim() !== "" && img.startsWith("http"))
+        .map((img) => img); // Cloudinary URLs are already complete
       return itemObj;
     });
 
