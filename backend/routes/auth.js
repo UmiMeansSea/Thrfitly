@@ -1,10 +1,6 @@
 const express    = require("express");
 const router     = express.Router();
-<<<<<<< HEAD
 const { Resend } = require("resend");
-=======
-const nodemailer = require("nodemailer");
->>>>>>> 63fbedd25f8cf6cf7a778668d42f54b37130ce24
 const mongoose   = require("mongoose");
 const User       = require("../models/User");
 const Seller     = require("../models/Seller");
@@ -15,7 +11,6 @@ const Item       = require("../models/Item");
 const SITE_NAME = "Thriftly";
 const SITE_URL  = "http://localhost:5173";
 
-<<<<<<< HEAD
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ── Startup config check ────────────────────────────
@@ -32,34 +27,12 @@ async function sendWelcomeEmail(toEmail, userName) {
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: [toEmail],
-=======
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-});
-
-// ── Startup config check ────────────────────────────────────
-if (!process.env.EMAIL_PASS || process.env.EMAIL_PASS === "YOUR_GMAIL_APP_PASSWORD_HERE") {
-  console.warn("⚠️  EMAIL_PASS is not set in .env — welcome emails will fail. Generate a Gmail App Password at: https://myaccount.google.com/apppasswords");
-}
-
-// Verify transporter config at startup (non-blocking)
-transporter.verify()
-  .then(() => console.log("✅ Email transporter is ready"))
-  .catch((err) => console.error("❌ Email transporter config error:", err.message, "\n   → Make sure EMAIL_PASS is a Gmail App Password (16 chars), NOT your regular password."));
-
-async function sendWelcomeEmail(toEmail, userName) {
-  try {
-    await transporter.sendMail({
-      from:    `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
-      to:      toEmail,
->>>>>>> 63fbedd25f8cf6cf7a778668d42f54b37130ce24
       subject: `You're in! Welcome to ${SITE_NAME} 👋`,
       html: `
         <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;padding:40px 24px;color:#2d2416;">
           <h2 style="margin:0 0 24px;font-size:22px;color:#2d2416;">Hi ${userName},</h2>
           <p style="font-size:15px;line-height:1.7;color:#4a3f2f;">
-            Quick note to say welcome to <strong>${SITE_NAME}</strong>! We're so happy you decided to join our little corner of the internet.
+            Quick note to say welcome to <strong>${SITE_NAME}</strong>! We're so happy you decided to join our little corner of internet.
           </p>
           <p style="font-size:15px;line-height:1.7;color:#4a3f2f;">
             Your account is officially live, which means you can now save your favourite finds and breeze through checkout.
@@ -73,11 +46,7 @@ async function sendWelcomeEmail(toEmail, userName) {
           <p style="font-size:15px;line-height:1.7;color:#4a3f2f;">Cheers,<br/>The ${SITE_NAME} Team</p>
           <hr style="border:none;border-top:1px solid #e5e0d5;margin:32px 0 16px;" />
           <p style="font-size:12px;color:#9a917f;">
-<<<<<<< HEAD
             P.S. If you did not create an account please mail
-=======
-            P.S: If you did not create an account please mail
->>>>>>> 63fbedd25f8cf6cf7a778668d42f54b37130ce24
             <a href="mailto:thriftly26@gmail.com" style="color:#5c6b3a;">thriftly26@gmail.com</a>
           </p>
         </div>
@@ -113,7 +82,7 @@ async function sendOrderEmailToSeller({ sellerEmail, buyerName, buyerContactInfo
   const html = `
     <div style="font-family:Segoe UI,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#2d2416;">
       <h2>New Checkout Order</h2>
-      <p><strong>${buyerName}</strong> has placed an order and wants to coordinate the sale.</p>
+      <p><strong>${buyerName}</strong> has placed an order and wants to coordinate sale.</p>
       <p><strong>Buyer Contact</strong><br/>
       Email: ${buyerContactInfo.email || "-"}<br/>
       Phone: ${buyerContactInfo.phone || "-"}<br/>
@@ -126,15 +95,9 @@ async function sendOrderEmailToSeller({ sellerEmail, buyerName, buyerContactInfo
   `;
 
   try {
-<<<<<<< HEAD
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: [sellerEmail],
-=======
-    await transporter.sendMail({
-      from: `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
-      to: sellerEmail,
->>>>>>> 63fbedd25f8cf6cf7a778668d42f54b37130ce24
       subject: "New buyer checkout on Thriftly",
       html,
     });
@@ -146,19 +109,11 @@ async function sendOrderEmailToSeller({ sellerEmail, buyerName, buyerContactInfo
 async function sendPurchaseIntentEmailToSeller({ sellerEmail, buyerUsername, itemName }) {
   if (!sellerEmail) return;
   try {
-<<<<<<< HEAD
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: [sellerEmail],
       subject: "Buyer purchase intent",
-      text: `@${buyerUsername} wants to buy ${itemName}. Please log in to website to coordinate the sale.`,
-=======
-    await transporter.sendMail({
-      from: `"${SITE_NAME}" <${process.env.EMAIL_USER}>`,
-      to: sellerEmail,
-      subject: "Buyer purchase intent",
-      text: `@${buyerUsername} wants to buy ${itemName}. Please log in to the website to coordinate the sale.`,
->>>>>>> 63fbedd25f8cf6cf7a778668d42f54b37130ce24
+      text: `@${buyerUsername} wants to buy ${itemName}. Please log in to website to coordinate sale.`,
     });
   } catch (err) {
     console.error("Purchase intent email failed:", err.message);
@@ -269,7 +224,7 @@ router.get("/logout", (req, res) => {
   return res.redirect("http://localhost:5173");
 });
 
-// ── GET /api/auth/me ───────────────────────────────────────
+// ── GET /api/auth/me ────────────────────────────────
 router.get("/me", async (req, res) => {
   if (!req.session.userId) return res.status(401).json({ message: "Not logged in." });
   try {
@@ -331,7 +286,7 @@ router.patch("/profile", async (req, res) => {
   }
 });
 
-// ── POST /api/auth/wishlist/:itemId ────────────────────────
+// ── POST /api/auth/wishlist/:itemId ────────────────────────────────
 router.post("/wishlist/:itemId", async (req, res) => {
   if (!req.session.userId) return res.status(401).json({ message: "Not logged in." });
   try {
@@ -347,7 +302,7 @@ router.post("/wishlist/:itemId", async (req, res) => {
   }
 });
 
-// ── DELETE /api/auth/wishlist/:itemId ──────────────────────
+// ── DELETE /api/auth/wishlist/:itemId ────────────────────────────────
 router.delete("/wishlist/:itemId", async (req, res) => {
   if (!req.session.userId) return res.status(401).json({ message: "Not logged in." });
   try {
@@ -449,7 +404,7 @@ router.post("/checkout", async (req, res) => {
     return res.status(201).json({ message: "Checkout complete.", order });
   } catch (err) {
     console.error("Checkout error:", err);
-    return res.status(500).json({ message: "Server error." });
+    return res.status(500).json({ message: "Server error. Please try again." });
   }
 });
 
@@ -574,4 +529,3 @@ router.put("/cart", async (req, res) => {
 });
 
 module.exports = router;
-
