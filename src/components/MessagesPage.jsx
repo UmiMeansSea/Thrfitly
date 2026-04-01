@@ -207,7 +207,6 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
       senderId: user?.id,
       senderRole: user?.role || "buyer",
       pending: true,
-      images,
       images: imagePreviews,
     };
     
@@ -296,7 +295,7 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
                             src={img}
                             alt={`Attachment ${idx + 1}`}
                             className="message-image"
-                            onClick={() => window.open(img.startsWith("http") ? img : `${API_BASE}${img}`, "_blank")}
+                            onClick={() => window.open(img, "_blank")}
                           />
                         ))}
                       </div>
