@@ -184,3 +184,14 @@ img {
 }
 img[loading] { opacity: 0; }
 img.loaded   { opacity: 1; }
+
+/* ── Hard overflow fix ── */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+* { box-sizing: border-box; }
+
+/* Prevent absolutely positioned elements from causing overflow */
+section { position: relative; overflow: hidden; }

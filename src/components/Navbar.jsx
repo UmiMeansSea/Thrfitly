@@ -85,6 +85,7 @@ export default function Navbar({
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(null); // "shops" | "items" | null
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navRef = useRef(null);
 
   /* scroll shadow */
@@ -104,7 +105,7 @@ export default function Navbar({
   }, []);
 
   const toggle = (key) => setOpen((o) => (o === key ? null : key));
-  const close  = () => setOpen(null);
+  const close  = () => { setOpen(null); setMobileOpen(false); }
 
   /* handlers forwarded to App */
   const handleItemClick = (label) => {
@@ -131,89 +132,106 @@ export default function Navbar({
           <span className="nav-logo-text">Thriftly</span>
         </a>
 
-        {/* Centre links */}
+        {/* Centre links — hidden on mobile */}
         <ul className="nav-links">
           {!user && (
             <li onMouseEnter={close}><a href="#how-it-works" onClick={close}>How It Works</a></li>
           )}
-
-          {/* Shops */}
           <li className={`nav-mega-trigger ${open === "shops" ? "active" : ""}`} onMouseEnter={() => setOpen("shops")}>
             <button onClick={() => toggle("shops")}>
               Shops <span className="nav-arrow">{open === "shops" ? "▴" : "▾"}</span>
             </button>
           </li>
-
-          {/* Items */}
           <li className={`nav-mega-trigger ${open === "items" ? "active" : ""}`} onMouseEnter={() => setOpen("items")}>
             <button onClick={() => toggle("items")}>
               Items <span className="nav-arrow">{open === "items" ? "▴" : "▾"}</span>
             </button>
           </li>
-
           <li onMouseEnter={close}>
-            <button className="nav-link-btn" onClick={() => { close(); onAboutClick?.(); }}>
-              About Us
-            </button>
+            <button className="nav-link-btn" onClick={() => { close(); onAboutClick?.(); }}>About Us</button>
           </li>
         </ul>
 
-        {/* Right actions */}
+        {/* Right actions — desktop */}
         <div className="nav-actions">
-          <button className="btn-nav-search" onClick={() => { close(); onSearchClick(); }} title="Search products">
-            🔍 Search
-          </button>
-
+          <button className="btn-nav-search nav-desktop-only" onClick={() => { close(); onSearchClick(); }}>🔍 Search</button>
           {user ? (
             <>
-              <button className="btn-nav-cart" onClick={() => { close(); onCartClick(); }} title="Cart" style={{ position: "relative" }}>
+              <button className="btn-nav-cart" onClick={() => { close(); onCartClick(); }} style={{ position: "relative" }}>
                 🛒
-                {cartCount > 0 && (
-                  <span className="nav-cart-badge">{cartCount > 9 ? "9+" : cartCount}</span>
-                )}
+                {cartCount > 0 && <span className="nav-cart-badge">{cartCount > 9 ? "9+" : cartCount}</span>}
               </button>
-              <button className="btn-nav-cart" onClick={() => { close(); onMessagesClick(); }} title="Messages">💬</button>
+              <button className="btn-nav-cart nav-desktop-only" onClick={() => { close(); onMessagesClick(); }}>💬</button>
               {user.role === "seller" && (
-                <button className="btn-nav-fill" onClick={() => { close(); onListItemClick(); }}>+ List Item</button>
+                <button className="btn-nav-fill nav-desktop-only" onClick={() => { close(); onListItemClick(); }}>+ List Item</button>
               )}
-              <button className="nav-user-btn" onClick={() => { close(); onProfileClick(); }} title="My profile">
+              <button className="nav-user-btn nav-desktop-only" onClick={() => { close(); onProfileClick(); }}>
                 <div className="nav-avatar">
-                  {user.avatarUrl
-                    ? <img src={user.avatarUrl} alt="avatar" />
-                    : (user.firstName?.[0] || "U").toUpperCase()}
+                  {user.avatarUrl ? <img src={user.avatarUrl} alt="avatar" /> : (user.firstName?.[0] || "U").toUpperCase()}
                 </div>
                 <span className="nav-user-name-text">{user.firstName || user.email}</span>
               </button>
             </>
           ) : (
             <>
-              <button className="btn-nav-ghost" onClick={() => { close(); onLoginClick(); }}>Log In</button>
-              <a href="#signup" className="btn-nav-fill" onClick={close}>List Your Shop</a>
+              <button className="btn-nav-ghost nav-desktop-only" onClick={() => { close(); onLoginClick(); }}>Log In</button>
+              <a href="#signup" className="btn-nav-fill nav-desktop-only" onClick={close}>List Your Shop</a>
             </>
           )}
+
+          {/* Hamburger — mobile only */}
+          <button
+            className="nav-hamburger"
+            onClick={() => setMobileOpen(o => !o)}
+            aria-label="Menu"
+          >
+            <span className={`ham-line ${mobileOpen ? "open" : ""}`} />
+            <span className={`ham-line ${mobileOpen ? "open" : ""}`} />
+            <span className={`ham-line ${mobileOpen ? "open" : ""}`} />
+          </button>
         </div>
 
-        {/* ── Mega-menu panels ───────────────────────── */}
+        {/* ── Mega-menu panels ── */}
         {open === "shops" && (
-          <MegaMenu
-            hero={SHOP_HERO}
-            sections={SHOP_SECTIONS}
+          <MegaMenu hero={SHOP_HERO} sections={SHOP_SECTIONS}
             onAllClick={() => { close(); onAllShopsClick?.(); }}
-            onItemClick={handleShopClick}
-          />
+            onItemClick={handleShopClick} />
         )}
         {open === "items" && (
-          <MegaMenu
-            hero={ITEM_HERO}
-            sections={ITEM_SECTIONS}
+          <MegaMenu hero={ITEM_HERO} sections={ITEM_SECTIONS}
             onAllClick={() => { close(); onAllItemsClick?.(); }}
-            onItemClick={handleItemClick}
-          />
+            onItemClick={handleItemClick} />
         )}
       </nav>
 
-      {/* ── Backdrop when mega menu is open ──────────── */}
-      {open && <div className="mega-backdrop" onClick={close} />}
+      {/* ── Mobile drawer ── */}
+      {mobileOpen && (
+        <div className="mobile-drawer">
+          <div className="mobile-drawer-links">
+            <button className="mobile-drawer-link" onClick={() => { close(); onSearchClick(); }}>🔍 Search</button>
+            <button className="mobile-drawer-link" onClick={() => { close(); onAllShopsClick?.(); }}>Shops</button>
+            <button className="mobile-drawer-link" onClick={() => { close(); onAllItemsClick?.(); }}>Items</button>
+            <button className="mobile-drawer-link" onClick={() => { close(); onAboutClick?.(); }}>About Us</button>
+            {user ? (
+              <>
+                <button className="mobile-drawer-link" onClick={() => { close(); onMessagesClick?.(); }}>💬 Messages</button>
+                <button className="mobile-drawer-link" onClick={() => { close(); onProfileClick?.(); }}>👤 My Account</button>
+                {user.role === "seller" && (
+                  <button className="mobile-drawer-link mobile-drawer-cta" onClick={() => { close(); onListItemClick?.(); }}>+ List Item</button>
+                )}
+              </>
+            ) : (
+              <>
+                <button className="mobile-drawer-link" onClick={() => { close(); onLoginClick?.(); }}>Log In</button>
+                <a href="#signup" className="mobile-drawer-link mobile-drawer-cta" onClick={close}>List Your Shop</a>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Backdrop */}
+      {(open || mobileOpen) && <div className="mega-backdrop" onClick={close} />}
     </>
   );
 }
