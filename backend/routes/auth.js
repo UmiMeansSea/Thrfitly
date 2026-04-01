@@ -11,7 +11,8 @@ const Item       = require("../models/Item");
 const SITE_NAME = "Thriftly";
 const SITE_URL  = "http://localhost:5173";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Only initialize Resend if API key exists
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // ── Startup config check ────────────────────────────
 if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "your_resend_api_key_here") {
@@ -23,6 +24,11 @@ if (!process.env.RESEND_FROM_EMAIL) {
 }
 
 async function sendWelcomeEmail(toEmail, userName) {
+  // Skip if Resend is not configured
+  if (!resend) {
+    console.log("⏭️  Skipping welcome email (Resend not configured)");
+    return;
+  }
   try {
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,

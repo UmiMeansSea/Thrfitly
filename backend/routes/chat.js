@@ -4,11 +4,16 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const path = require("path");
 const { Resend } = require("resend");
-const resend = new Resend(process.env.RESEND_API_KEY);
 const Conversation = require("../models/Conversation");
 const Message = require("../models/Message");
 const Seller = require("../models/Seller");
 const User = require("../models/User");
+
+// ── Resend config (safe initialization) ────────────
+let resend = null;
+if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "your_resend_api_key_here") {
+  resend = new Resend(process.env.RESEND_API_KEY);
+}
 
 // Import Cloudinary config for chat images
 const { cloudinary } = require("../cloudinary");
