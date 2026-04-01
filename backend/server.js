@@ -91,7 +91,12 @@ app.use(
   })
 );
 
+// ── Trust proxy (needed for Railway behind load balancer) ──
+app.set("trust proxy", 1);
+
 // ── Sessions ───────────────────────────────────────────────
+const isProduction = process.env.NODE_ENV === "production";
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -107,7 +112,9 @@ app.use(
       httpOnly: true,
       sameSite: "none",
       secure: true,
+      // No domain restriction - let browser handle it
     },
+    name: "thriftly.sid", // Custom name to avoid conflicts
   })
 );
 
