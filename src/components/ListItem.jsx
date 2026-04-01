@@ -4,7 +4,6 @@ import "./ListItem.css";
 import { API_BASE as API, IMG_BASE } from "../config.js";
 
 export default function ListItem({ onBack, user, onViewMyShop, onViewItem, onRefreshUser, onSessionExpired }) {
-
   const [items, setItems] = useState([]);
   const [myShop, setMyShop] = useState(null);
   const [loading, setLoading] = useState(false);

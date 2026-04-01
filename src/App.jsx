@@ -56,7 +56,14 @@ export default function App() {
           setUser(data.user);
           await loadCartFromServer();
         }
-        // No session → leave user as null, stay on whatever page (home).
+        // If session exists, stay on current page instead of forcing home
+        else if (data?.error === "Not logged in.") {
+          // Only redirect if explicitly not logged in
+          setUser(null);
+          setCartItems([]);
+          setPage("login");
+          window.scrollTo(0, 0);
+        }
       })
       .catch(() => {})
       .finally(() => setAuthLoading(false));

@@ -84,8 +84,9 @@ app.use(
       ttl: 60 * 60 * 24 * 30,
     }),
     cookie: {
-      // No maxAge here — defaults to session cookie (cleared on browser close).
-      // The /api/auth/login route sets maxAge = 30 days when keepLoggedIn = true.
+      // Default: 7 days. Login route overrides to 30 days if keepLoggedIn=true.
+      // Always use a real maxAge (never session-only) for reliability across browsers.
+      maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
