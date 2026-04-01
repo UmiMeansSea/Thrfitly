@@ -33,41 +33,95 @@ export default function App() {
   const [navFilterShopTag, setNavFilterShopTag] = useState(null);
   const API_BASE = import.meta.env?.VITE_API_ORIGIN ? `${import.meta.env.VITE_API_ORIGIN}/api` : "http://localhost:5000/api";
 
-  // ---------- Auth persistence ------------------------------------------
+  // ---------- Auth persistence with cookies ------------------------------------------
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Called when an authenticated action fails mid-session (e.g. session died
-  // while the user was actively using the app). Redirects to login.
-  const handleSessionExpired = () => {
-    setUser(null);
-    setCartItems([]);
-    setPage("login");
-    window.scrollTo(0, 0);
-  };
-
-  // On mount: silently check if the server has an active session.
-  // If NOT logged in (401) → just stay on home, do NOT redirect to login.
-  // Redirecting to login here caused every refresh to land on the login page.
+  // Check for existing auth cookie on mount
   useEffect(() => {
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const cookies = value.split(';').map(cookie => cookie.trim());
+      return cookies.find(cookie => cookie.startsWith(`${name}=`));
+    };
+
+  // Auto-login from cookie if exists
+    const authCookie = getCookie('thriftly_auth');
+    if (authCookie) {
+      try {
+        const token = authCookie.split('=')[1];
+        if (token) {
+          // Validate token with server
+          fetch(`${API_BASE}/auth/validate-token`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token })
+          })
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            if (data?.valid && data?.user) {
+              setUser(data.user);
+              loadCartFromServer().catch(() => {});
+              // Update cookie with new token
+              const expires = new Date();
+              expires.setDate(expires.getDate() + 7); // 7 days
+              document.cookie = `thriftly_auth=${data.token}; expires=${expires.toUTCString()}; path=/;`;
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Token validation failed:', error);
+        // Invalid token, remove cookie
+        document.cookie = 'thriftly_auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
+      }
+      }
+    }
+
+    // Fallback: check session via API if cookie fails
     fetch(`${API_BASE}/auth/me`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
       .then(async (data) => {
         if (data?.user) {
           setUser(data.user);
           await loadCartFromServer();
-        }
-        // If session exists, stay on current page instead of forcing home
-        else if (data?.error === "Not logged in.") {
-          // Only redirect if explicitly not logged in
+        } else {
+          // No valid session, clear any invalid cookies
           setUser(null);
           setCartItems([]);
-          setPage("login");
-          window.scrollTo(0, 0);
         }
       })
       .catch(() => {})
       .finally(() => setAuthLoading(false));
   }, []);
+
+  // Called when an authenticated action fails mid-session
+  const handleSessionExpired = () => {
+    setUser(null);
+    setCartItems([]);
+    setPage("login");
+    // Clear auth cookie
+    document.cookie = 'thriftly_auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
+    window.scrollTo(0, 0);
+  };
+
+  // Enhanced logout function
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "include" });
+      
+      // Clear all auth-related cookies
+      document.cookie = 'thriftly_auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
+      
+      setUser(null);
+      setCartItems([]);
+      setInitialChatContext(null);
+      setPage("home");
+      window.scrollTo(0, 0);
+      
+      console.log('User logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   // ---------- Cart state -------------------------------------------------
   // cartItems: Array<{ _id, title, price, qty, images, shopName }>

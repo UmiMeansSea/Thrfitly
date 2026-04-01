@@ -1,6 +1,5 @@
 import { useState } from "react";
 import "./Login.css";
-
 import { API_BASE as API, IMG_BASE } from "../config.js";
 
 export default function Login({ onBack, onLoginSuccess }) {
@@ -21,7 +20,6 @@ export default function Login({ onBack, onLoginSuccess }) {
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
 
-
   const clearMessages = () => { setError(""); setSuccess(""); };
 
   const handleLogin = async () => {
@@ -29,15 +27,14 @@ export default function Login({ onBack, onLoginSuccess }) {
     if (!loginEmail || !loginPassword) { setError("Please fill in all fields."); return; }
     setLoading(true);
     try {
-      const res = await fetch(`${API}/auth/login`, {
+      const res = await fetch(`${API}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email: loginEmail, password: loginPassword, keepLoggedIn }),
+        body: JSON.stringify({ firstName: regFirstName, lastName: regLastName, email: regEmail, password: regPassword, role: "buyer" }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.message || "Login failed."); return; }
-      setSuccess("✓ Logged in!");
+      if (!res.ok) { setError(data.message || "Registration failed."); return; }
+      setSuccess("✓ Account created successfully!");
       setTimeout(() => onLoginSuccess(data.user), 600);
     } catch { setError("Network error. Is the backend running?"); }
     finally { setLoading(false); }

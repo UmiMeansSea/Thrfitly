@@ -48,6 +48,11 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem, onRef
 
   const clearMessages = () => { setError(""); setSuccess(""); };
 
+  // Session expired — only redirect to login if explicitly checking session
+  const handleSessionExpired = () => {
+    onSessionExpired?.();
+  };
+
   // Reset form to empty state
   const resetForm = () => {
     setTitle("");
