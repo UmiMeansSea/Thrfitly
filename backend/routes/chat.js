@@ -291,4 +291,29 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
   }
 });
 
+// DELETE /api/chat/conversations/:conversationId
+router.delete("/conversations/:conversationId", async (req, res) => {
+  try {
+    const conversation = await Conversation.findById(req.params.conversationId);
+    if (!conversation) return res.status(404).json({ message: "Conversation not found." });
+
+    const userId = String(req.session.userId);
+    // Only buyer or seller in the conversation can delete it
+    if (conversation.buyerId !== userId && conversation.sellerId !== userId) {
+      return res.status(403).json({ message: "Forbidden." });
+    }
+
+    // Delete all messages in the conversation
+    await Message.deleteMany({ conversationId: conversation._id });
+    
+    // Delete the conversation
+    await Conversation.findByIdAndDelete(req.params.conversationId);
+
+    return res.status(200).json({ message: "Conversation deleted successfully." });
+  } catch (err) {
+    console.error("Conversation delete error:", err);
+    return res.status(500).json({ message: "Server error." });
+  }
+});
+
 module.exports = router;

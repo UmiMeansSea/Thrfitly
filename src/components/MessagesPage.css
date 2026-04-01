@@ -67,6 +67,7 @@
 }
 
 .conv-item {
+  position: relative;
   width: 100%;
   text-align: left;
   border: none;
@@ -76,10 +77,33 @@
   margin-bottom: 6px;
   cursor: pointer;
   transition: background 0.15s;
+  padding-right: 2.5rem;
 }
 
 .conv-item:hover {
   background: rgba(255, 255, 255, 0.7);
+}
+
+.conv-item:hover .conv-delete {
+  opacity: 0.6;
+}
+
+.conv-delete {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+}
+
+.conv-delete:hover {
+  opacity: 1 !important;
+  background: rgba(255, 0, 0, 0.1);
 }
 
 .conv-item.active {

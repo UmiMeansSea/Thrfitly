@@ -58,6 +58,32 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
     setConversations(data.conversations || []);
   };
 
+  const deleteConversation = async (conversationId, e) => {
+    e.stopPropagation();
+    if (!window.confirm("Delete this conversation? This action cannot be undone.")) return;
+    
+    try {
+      const res = await fetch(`${API_BASE}/chat/conversations/${conversationId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      
+      if (res.ok) {
+        // Remove from local state
+        setConversations((prev) => prev.filter((c) => c._id !== conversationId));
+        // Clear active conversation if it was deleted
+        if (activeConversation?._id === conversationId) {
+          setActiveConversation(null);
+          setMessages([]);
+        }
+      } else {
+        alert("Failed to delete conversation.");
+      }
+    } catch {
+      alert("Network error. Please try again.");
+    }
+  };
+
   const loadMessages = async (conversationId) => {
     const res = await fetch(`${API_BASE}/chat/conversations/${conversationId}/messages`, { credentials: "include" });
     if (!res.ok) return;
@@ -173,6 +199,13 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
             <button key={c._id} type="button" className={`conv-item ${activeConversation?._id === c._id ? "active" : ""}`} onClick={() => loadMessages(c._id)}>
               <div className="conv-title">{c.shopName || c.productName || "Conversation"}</div>
               <div className="conv-sub">{c.lastMessage || "No messages yet"}</div>
+              <span
+                className="conv-delete"
+                onClick={(e) => deleteConversation(c._id, e)}
+                title="Delete conversation"
+              >
+                🗑️
+              </span>
             </button>
           ))}
         </aside>
