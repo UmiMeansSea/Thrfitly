@@ -3,7 +3,8 @@ import "./ListItem.css";
 
 import { API_BASE as API, IMG_BASE } from "../config.js";
 
-export default function ListItem({ onBack, user, onViewMyShop, onViewItem, onRefreshUser }) {
+export default function ListItem({ onBack, user, onViewMyShop, onViewItem, onRefreshUser, onSessionExpired }) {
+
   const [items, setItems] = useState([]);
   const [myShop, setMyShop] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -179,6 +180,12 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem, onRef
           credentials: "include",
           body: formData,
         });
+      }
+
+      // Session expired — redirect to login
+      if (res.status === 401) {
+        onSessionExpired?.();
+        return;
       }
       
       const data = await res.json();

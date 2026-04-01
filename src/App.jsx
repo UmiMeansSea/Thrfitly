@@ -36,9 +36,20 @@ export default function App() {
   // ---------- Auth persistence (Issue 1) ----------------------------------
   const [authLoading, setAuthLoading] = useState(true);
 
+  // Global session expiry handler — clears user and goes to login on any 401
+  const handleSessionExpired = () => {
+    setUser(null);
+    setCartItems([]);
+    setPage("login");
+    window.scrollTo(0, 0);
+  };
+
   useEffect(() => {
     fetch(`${API_BASE}/auth/me`, { credentials: "include" })
-      .then(r => r.ok ? r.json() : null)
+      .then(r => {
+        if (r.status === 401) { handleSessionExpired(); return null; }
+        return r.ok ? r.json() : null;
+      })
       .then(async (data) => {
         if (data?.user) {
           setUser(data.user);
@@ -374,7 +385,8 @@ export default function App() {
   } else if (page === "search") {
     pageContent = <SearchPage onBack={goHome} onProductClick={goProduct} initialQuery={navSearchInitQuery} initialCategory={navSearchInitCategory} />;
   } else if (page === "list-item") {
-    pageContent = <ListItem onBack={goHome} user={user} onViewMyShop={goMyLiveShop} onViewItem={goViewItem} onRefreshUser={setUser} />;
+    pageContent = <ListItem onBack={goHome} user={user} onViewMyShop={goMyLiveShop} onViewItem={goViewItem} onRefreshUser={setUser} onSessionExpired={handleSessionExpired} />;
+
   } else if (page === "all-shops") {
     pageContent = <AllShopsDirectory onBack={goHome} onShopClick={goShop} filterTag={navFilterShopTag} />;
   } else if (page === "about") {
