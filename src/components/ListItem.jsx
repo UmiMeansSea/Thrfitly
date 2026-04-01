@@ -3,7 +3,7 @@ import "./ListItem.css";
 
 import { API_BASE as API, IMG_BASE } from "../config.js";
 
-export default function ListItem({ onBack, user, onViewMyShop, onViewItem }) {
+export default function ListItem({ onBack, user, onViewMyShop, onViewItem, onRefreshUser }) {
   const [items, setItems] = useState([]);
   const [myShop, setMyShop] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -25,6 +25,26 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem }) {
   // For editing: track existing images and which ones to keep
   const [existingImages, setExistingImages] = useState([]);
   const [imagesToDelete, setImagesToDelete] = useState([]);
+
+  // Re-check role from server in case it was upgraded after login
+  const [serverRole, setServerRole] = useState(user?.role || "");
+  const [roleChecked, setRoleChecked] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API}/auth/me`, { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.user?.role) {
+          setServerRole(data.user.role);
+          // If server says seller but local state says buyer, tell parent to refresh
+          if (data.user.role === "seller" && user?.role !== "seller") {
+            onRefreshUser?.(data.user);
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setRoleChecked(true));
+  }, []);
 
   const clearMessages = () => { setError(""); setSuccess(""); };
 
@@ -82,7 +102,7 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem }) {
   useEffect(() => { fetchItems(); }, []);
 
   useEffect(() => {
-    if (!user || user.role !== "seller") return;
+    if (!user || (serverRole !== "seller" && user.role !== "seller")) return;
     fetch(`${API}/shop/my`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
@@ -91,7 +111,7 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem }) {
         }
       })
       .catch(() => {});
-  }, [user]);
+  }, [user, serverRole]);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -179,14 +199,49 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem }) {
     } catch { alert("Failed to delete."); }
   };
 
-  if (!user || user.role !== "seller") {
+  // Show loading while checking role from server
+  if (!roleChecked && !user) {
+    return (
+      <div className="listitem-page">
+        <div className="listitem-container">
+          <button className="listitem-back" onClick={onBack}>← Back to Home</button>
+          <div className="listitem-empty"><p>Checking access…</p></div>
+        </div>
+      </div>
+    );
+  }
+
+  const isSeller = serverRole === "seller" || user?.role === "seller";
+
+  if (!user || !isSeller) {
     return (
       <div className="listitem-page">
         <div className="listitem-container">
           <button className="listitem-back" onClick={onBack}>← Back to Home</button>
           <div className="listitem-empty">
             <h2>🔒 Seller Access Only</h2>
-            <p>You need to be logged in as a seller to list items.</p>
+            {!user ? (
+              <p>You need to be logged in to list items.</p>
+            ) : (
+              <>
+                <p>Your account doesn't have seller access yet.</p>
+                <p style={{ fontSize: "0.9rem", color: "#7c6a50", marginTop: "8px" }}>
+                  If you've already signed up as a seller, try refreshing your session.
+                </p>
+                <button
+                  onClick={() => window.location.reload()}
+                  style={{
+                    marginTop: "16px", padding: "10px 24px",
+                    background: "#5c6b3a", color: "#faf6ec",
+                    border: "none", borderRadius: "8px",
+                    fontFamily: "inherit", fontWeight: 600,
+                    cursor: "pointer", fontSize: "0.95rem"
+                  }}
+                >
+                  🔄 Refresh &amp; Try Again
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

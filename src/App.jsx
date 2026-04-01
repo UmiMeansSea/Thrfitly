@@ -374,7 +374,7 @@ export default function App() {
   } else if (page === "search") {
     pageContent = <SearchPage onBack={goHome} onProductClick={goProduct} initialQuery={navSearchInitQuery} initialCategory={navSearchInitCategory} />;
   } else if (page === "list-item") {
-    pageContent = <ListItem onBack={goHome} user={user} onViewMyShop={goMyLiveShop} onViewItem={goViewItem} />;
+    pageContent = <ListItem onBack={goHome} user={user} onViewMyShop={goMyLiveShop} onViewItem={goViewItem} onRefreshUser={setUser} />;
   } else if (page === "all-shops") {
     pageContent = <AllShopsDirectory onBack={goHome} onShopClick={goShop} filterTag={navFilterShopTag} />;
   } else if (page === "about") {
