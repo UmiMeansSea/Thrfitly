@@ -13,6 +13,7 @@ export default function Login({ onBack, onLoginSuccess }) {
   // Login form state
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [keepLoggedIn, setKeepLoggedIn] = useState(false);
 
   // Register form state
   const [regFirstName, setRegFirstName] = useState("");
@@ -32,7 +33,7 @@ export default function Login({ onBack, onLoginSuccess }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+        body: JSON.stringify({ email: loginEmail, password: loginPassword, keepLoggedIn }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.message || "Login failed."); return; }
@@ -167,7 +168,12 @@ export default function Login({ onBack, onLoginSuccess }) {
               </div>
 
               <div className="login-remember">
-                <input type="checkbox" id="remember" />
+                <input
+                  type="checkbox"
+                  id="remember"
+                  checked={keepLoggedIn}
+                  onChange={(e) => setKeepLoggedIn(e.target.checked)}
+                />
                 <label htmlFor="remember">Keep me logged in</label>
               </div>
 

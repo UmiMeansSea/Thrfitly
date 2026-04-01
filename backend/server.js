@@ -80,9 +80,12 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
       collectionName: "sessions",
+      // TTL matches the max keep-logged-in duration (30 days)
+      ttl: 60 * 60 * 24 * 30,
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      // No maxAge here — defaults to session cookie (cleared on browser close).
+      // The /api/auth/login route sets maxAge = 30 days when keepLoggedIn = true.
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",

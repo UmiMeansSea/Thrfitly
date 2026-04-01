@@ -158,7 +158,7 @@ router.post("/register", async (req, res) => {
 // ── POST /api/auth/login ───────────────────────────────────
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, keepLoggedIn } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required." });
     }
@@ -169,9 +169,19 @@ router.post("/login", async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(401).json({ message: "Invalid email or password." });
 
-    req.session.userId = user._id;
-    req.session.email  = user.email;
-    req.session.role   = user.role;
+    req.session.userId      = user._id;
+    req.session.email       = user.email;
+    req.session.role        = user.role;
+    req.session.keepLoggedIn = !!keepLoggedIn;
+
+    // If keepLoggedIn is false → session cookie (expires on browser close).
+    // If keepLoggedIn is true  → persist for 30 days.
+    if (keepLoggedIn) {
+      req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 30; // 30 days
+    } else {
+      req.session.cookie.expires = false; // session cookie — cleared on browser close
+      delete req.session.cookie.maxAge;
+    }
 
     const responseUser = {
       id: user._id, firstName: user.firstName, lastName: user.lastName,
