@@ -153,3 +153,103 @@
 .shopsettings-file-btn:hover {
   background: #ebe4d8;
 }
+
+/* Customization styles */
+.shopsettings-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: #7c6a50;
+  margin-top: -0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.shopsettings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.shopsettings-toggle {
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  border: none;
+  background: #e5e0d5;
+  color: #5c4328;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.shopsettings-toggle.active {
+  background: #5c6b3a;
+  color: #faf6ec;
+}
+
+.shopsettings-color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.shopsettings-color-swatch {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.shopsettings-color-swatch:hover {
+  transform: scale(1.05);
+}
+
+.shopsettings-color-swatch.selected {
+  border-color: #2d2416;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #2d2416;
+}
+
+.shopsettings-pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.shopsettings-pattern-tile {
+  padding: 0.75rem;
+  border: 2px solid #e5e0d5;
+  border-radius: 12px;
+  background: #faf6ec;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.shopsettings-pattern-tile:hover {
+  border-color: #c4b8a5;
+  background: #f5f0e8;
+}
+
+.shopsettings-pattern-tile.selected {
+  border-color: #5c6b3a;
+  background: #e8eedf;
+}
+
+.pattern-preview {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #5c4328;
+  padding: 0.5rem 0;
+}

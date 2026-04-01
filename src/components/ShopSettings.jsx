@@ -26,6 +26,17 @@ export default function ShopSettings({ onBack, user }) {
   const headerInputRef = useRef(null);
   const logoInputRef = useRef(null);
 
+  // Customization state
+  const [tagline, setTagline] = useState("");
+  const [announcement, setAnnouncement] = useState("");
+  const [announcementActive, setAnnouncementActive] = useState(false);
+  const [openingHours, setOpeningHours] = useState("");
+  const [accentColor, setAccentColor] = useState("#5c6b3a");
+  const [featuredItems, setFeaturedItems] = useState([]);
+  const [backgroundPattern, setBackgroundPattern] = useState("");
+  const [myItems, setMyItems] = useState([]);
+  const [customizationMsg, setCustomizationMsg] = useState("");
+
   useEffect(() => {
     if (!user || user.role !== "seller") {
       setLoading(false);
@@ -46,6 +57,14 @@ export default function ShopSettings({ onBack, user }) {
           setShopName(data.seller.shopName || "");
           if (data.seller.headerImageUrl) setHeaderPreview(assetUrl(data.seller.headerImageUrl));
           if (data.seller.shopLogoUrl) setLogoPreview(assetUrl(data.seller.shopLogoUrl));
+          // Load customization fields
+          setTagline(data.seller.tagline || "");
+          setAnnouncement(data.seller.announcement || "");
+          setAnnouncementActive(data.seller.announcementActive || false);
+          setOpeningHours(data.seller.openingHours || "");
+          setAccentColor(data.seller.accentColor || "#5c6b3a");
+          setFeaturedItems(data.seller.featuredItems || []);
+          setBackgroundPattern(data.seller.backgroundPattern || "");
         }
       })
       .catch(() => {})
@@ -110,6 +129,33 @@ export default function ShopSettings({ onBack, user }) {
       setMsg("Images updated.");
     } catch {
       setMsg("Upload failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveCustomization = async () => {
+    setCustomizationMsg("");
+    setSaving(true);
+    try {
+      const res = await fetch(`${API}/shop/customise`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          tagline,
+          announcement,
+          announcementActive,
+          openingHours,
+          accentColor,
+          featuredItems,
+          backgroundPattern,
+        }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      setCustomizationMsg("Customization saved.");
+    } catch {
+      setCustomizationMsg("Could not save customization.");
     } finally {
       setSaving(false);
     }
@@ -297,6 +343,118 @@ export default function ShopSettings({ onBack, user }) {
         <button type="button" className="shopsettings-primary" onClick={uploadBranding} disabled={saving}>
           Upload images
         </button>
+      </section>
+
+      <section className="shopsettings-card">
+        <h2>Customise Your Shop</h2>
+        
+        {/* Tagline */}
+        <label className="shopsettings-label">Tagline (max 80 chars)</label>
+        <input
+          className="shopsettings-input"
+          value={tagline}
+          onChange={(e) => setTagline(e.target.value.slice(0, 80))}
+          placeholder="e.g., Curated vintage finds from the 90s"
+          maxLength={80}
+        />
+        <small className="shopsettings-hint">{tagline.length}/80</small>
+        
+        {/* Announcement Banner */}
+        <label className="shopsettings-label">Announcement Banner</label>
+        <div className="shopsettings-toggle-row">
+          <span>Enable announcement</span>
+          <button
+            type="button"
+            className={`shopsettings-toggle ${announcementActive ? "active" : ""}`}
+            onClick={() => setAnnouncementActive(!announcementActive)}
+          >
+            {announcementActive ? "ON" : "OFF"}
+          </button>
+        </div>
+        {announcementActive && (
+          <>
+            <textarea
+              className="shopsettings-textarea"
+              rows={2}
+              value={announcement}
+              onChange={(e) => setAnnouncement(e.target.value.slice(0, 200))}
+              placeholder="e.g., Sale this weekend! or Closed for Eid"
+              maxLength={200}
+            />
+            <small className="shopsettings-hint">{announcement.length}/200</small>
+          </>
+        )}
+        
+        {/* Opening Hours */}
+        <label className="shopsettings-label">Opening Hours</label>
+        <input
+          className="shopsettings-input"
+          value={openingHours}
+          onChange={(e) => setOpeningHours(e.target.value)}
+          placeholder="e.g., Mon–Sat 10am–7pm · Closed Sundays"
+        />
+        
+        {/* Accent Color */}
+        <label className="shopsettings-label">Accent Color</label>
+        <div className="shopsettings-color-grid">
+          {[
+            { hex: "#5c6b3a", name: "Moss Green" },
+            { hex: "#c17a5f", name: "Rust" },
+            { hex: "#d4a574", name: "Clay" },
+            { hex: "#8b6f47", name: "Bark" },
+            { hex: "#a8b5a0", name: "Sage" },
+            { hex: "#6b7b8c", name: "Slate" },
+            { hex: "#d4a5a5", name: "Blush" },
+            { hex: "#4a4a4a", name: "Charcoal" },
+          ].map((color) => (
+            <button
+              key={color.hex}
+              type="button"
+              className={`shopsettings-color-swatch ${accentColor === color.hex ? "selected" : ""}`}
+              style={{ backgroundColor: color.hex }}
+              onClick={() => setAccentColor(color.hex)}
+              title={color.name}
+            >
+              {accentColor === color.hex && "✓"}
+            </button>
+          ))}
+        </div>
+        
+        {/* Background Pattern */}
+        <label className="shopsettings-label">Background Pattern</label>
+        <div className="shopsettings-pattern-grid">
+          <button
+            type="button"
+            className={`shopsettings-pattern-tile ${backgroundPattern === "" ? "selected" : ""}`}
+            onClick={() => setBackgroundPattern("")}
+          >
+            <span className="pattern-preview plain">None</span>
+          </button>
+          {[
+            { key: "paw-prints", name: "Paw Prints" },
+            { key: "shoe-prints", name: "Shoe Prints" },
+            { key: "tote-bags", name: "Tote Bags" },
+            { key: "jackets", name: "Jackets" },
+            { key: "shirts-tees", name: "Shirts/Tees" },
+            { key: "floral", name: "Floral" },
+            { key: "stars", name: "Stars" },
+            { key: "leaves", name: "Leaves" },
+          ].map((pattern) => (
+            <button
+              key={pattern.key}
+              type="button"
+              className={`shopsettings-pattern-tile ${backgroundPattern === pattern.key ? "selected" : ""}`}
+              onClick={() => setBackgroundPattern(pattern.key)}
+            >
+              <span className={`pattern-preview ${pattern.key}`}>{pattern.name}</span>
+            </button>
+          ))}
+        </div>
+        
+        <button type="button" className="shopsettings-primary" onClick={saveCustomization} disabled={saving}>
+          Save Customization
+        </button>
+        {customizationMsg && <p className="shopsettings-msg">{customizationMsg}</p>}
       </section>
 
       {msg && <p className="shopsettings-msg">{msg}</p>}

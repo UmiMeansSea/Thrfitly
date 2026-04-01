@@ -22,6 +22,14 @@ const sellerSchema = new mongoose.Schema(
     approvedAt:      { type: Date },
     averageRating:   { type: Number, default: 0, min: 0, max: 5 },
     reviewCount:     { type: Number, default: 0, min: 0 },
+    // Shop Customization fields
+    tagline:         { type: String, default: "", trim: true, maxlength: 80 },
+    announcement:    { type: String, default: "", trim: true, maxlength: 200 },
+    announcementActive: { type: Boolean, default: false },
+    openingHours:    { type: String, default: "", trim: true },
+    accentColor:     { type: String, default: "#5c6b3a", trim: true },
+    featuredItems:   [{ type: mongoose.Schema.Types.ObjectId, ref: "Item" }],
+    backgroundPattern: { type: String, default: "", trim: true, enum: ["", "paw-prints", "shoe-prints", "tote-bags", "jackets", "shirts-tees", "floral", "stars", "leaves"] },
   },
   { timestamps: true }
 );

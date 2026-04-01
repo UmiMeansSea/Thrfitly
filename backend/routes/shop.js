@@ -131,6 +131,14 @@ router.get("/my", requireApprovedSellerApi, async (req, res) => {
         since: s.since || "",
         headerImageUrl: absUploadUrl(s.headerImageUrl || ""),
         shopLogoUrl: absUploadUrl(s.shopLogoUrl || ""),
+        // Shop Customization fields
+        tagline: s.tagline || "",
+        announcement: s.announcement || "",
+        announcementActive: s.announcementActive || false,
+        openingHours: s.openingHours || "",
+        accentColor: s.accentColor || "#5c6b3a",
+        featuredItems: s.featuredItems || [],
+        backgroundPattern: s.backgroundPattern || "",
       },
       user: {
         avatarUrl: user?.avatarUrl || "",
@@ -212,6 +220,80 @@ router.post(
     }
   }
 );
+
+// ── PUT /api/shop/customise  — shop customization (tagline, announcement, accent color, etc.) ────────────────────────────
+router.put("/customise", requireApprovedSellerApi, async (req, res) => {
+  try {
+    const seller = req.sellerRecord;
+    const sanitize = (v) => String(v || "").replace(/[<>]/g, "").trim();
+    
+    // Tagline (max 80 chars)
+    if (req.body.tagline !== undefined) {
+      seller.tagline = sanitize(req.body.tagline).slice(0, 80);
+    }
+    
+    // Announcement (max 200 chars)
+    if (req.body.announcement !== undefined) {
+      seller.announcement = sanitize(req.body.announcement).slice(0, 200);
+    }
+    
+    // Announcement active toggle
+    if (req.body.announcementActive !== undefined) {
+      seller.announcementActive = Boolean(req.body.announcementActive);
+    }
+    
+    // Opening Hours
+    if (req.body.openingHours !== undefined) {
+      seller.openingHours = sanitize(req.body.openingHours).slice(0, 100);
+    }
+    
+    // Accent Color (hex validation)
+    if (req.body.accentColor !== undefined) {
+      const color = sanitize(req.body.accentColor);
+      // Basic hex color validation (supports #RGB and #RRGGBB)
+      if (/^#[0-9A-Fa-f]{6}$/.test(color) || /^#[0-9A-Fa-f]{3}$/.test(color)) {
+        seller.accentColor = color.toLowerCase();
+      }
+    }
+    
+    // Featured Items (max 3)
+    if (req.body.featuredItems !== undefined) {
+      const items = Array.isArray(req.body.featuredItems) ? req.body.featuredItems : [];
+      // Validate ObjectIds and limit to 3
+      const validItems = items
+        .filter(id => /^[0-9a-fA-F]{24}$/.test(String(id)))
+        .slice(0, 3);
+      seller.featuredItems = validItems;
+    }
+    
+    // Background Pattern (enum validation)
+    if (req.body.backgroundPattern !== undefined) {
+      const validPatterns = ["", "paw-prints", "shoe-prints", "tote-bags", "jackets", "shirts-tees", "floral", "stars", "leaves"];
+      const pattern = sanitize(req.body.backgroundPattern);
+      if (validPatterns.includes(pattern)) {
+        seller.backgroundPattern = pattern;
+      }
+    }
+    
+    await seller.save();
+    
+    return res.status(200).json({
+      message: "Customization saved.",
+      customization: {
+        tagline: seller.tagline,
+        announcement: seller.announcement,
+        announcementActive: seller.announcementActive,
+        openingHours: seller.openingHours,
+        accentColor: seller.accentColor,
+        featuredItems: seller.featuredItems,
+        backgroundPattern: seller.backgroundPattern,
+      },
+    });
+  } catch (err) {
+    console.error("shop customise:", err);
+    return res.status(500).json({ message: "Server error." });
+  }
+});
 
 // ────────────────────────────────────────────────────────────
 // POST /api/shop/request  — new shop application from homepage form

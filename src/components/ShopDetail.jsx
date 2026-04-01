@@ -137,6 +137,14 @@ export default function ShopDetail({ shop, user, onUserUpdate, onBack, onProduct
     items: remoteShop?.itemCount ?? shop?.items,
     rating: remoteShop?.averageRating ?? shop?.rating ?? 4.8,
     reviews: remoteShop?.reviewCount ?? shop?.reviews ?? 0,
+    // Customization fields
+    tagline: remoteShop?.tagline || "",
+    announcement: remoteShop?.announcement || "",
+    announcementActive: remoteShop?.announcementActive || false,
+    openingHours: remoteShop?.openingHours || "",
+    accentColor: remoteShop?.accentColor || "#5c6b3a",
+    featuredItems: remoteShop?.featuredItems || [],
+    backgroundPattern: remoteShop?.backgroundPattern || "",
   };
 
   const headerStyle = remoteShop?.headerImageUrl
@@ -239,7 +247,20 @@ export default function ShopDetail({ shop, user, onUserUpdate, onBack, onProduct
         <div className="sd-banner-overlay" />
       </div>
 
-      <div className="sd-header-wrap">
+      {/* Announcement Banner */}
+      {display.announcementActive && display.announcement && (
+        <div
+          className="sd-announcement-banner"
+          style={{
+            backgroundColor: `${display.accentColor}26`,
+            borderLeft: `4px solid ${display.accentColor}`,
+          }}
+        >
+          <span className="sd-announcement-text">{display.announcement}</span>
+        </div>
+      )}
+
+      <div className="sd-header-wrap" style={{ '--shop-accent': display.accentColor }}>
         <div className="sd-header">
           <div className="sd-logo-wrap">
             {remoteShop?.shopLogoUrl ? (
@@ -252,7 +273,9 @@ export default function ShopDetail({ shop, user, onUserUpdate, onBack, onProduct
             <div className="sd-header-top">
               <div>
                 <h1 className="sd-shop-name">{display.name}</h1>
+                {display.tagline && <p className="sd-shop-tagline">{display.tagline}</p>}
                 <p className="sd-shop-location">📍 {display.location || "—"}</p>
+                {display.openingHours && <p className="sd-shop-hours">🕐 {display.openingHours}</p>}
               </div>
               <div className="sd-header-badges">
                 <div className="sd-rating">
