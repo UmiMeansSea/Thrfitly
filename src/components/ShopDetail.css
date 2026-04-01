@@ -569,21 +569,50 @@
   border-top: 1px solid rgba(45,36,22,0.06);
 }
 
-/* ════════════════════════════════ RESPONSIVE ════════════════════════════════ */
+/* ──────────────────────────────── RESPONSIVE ──────────────────────────────── */
+@media (max-width: 1280px) {
+  .sd-topbar { padding: 14px 48px; }
+  .sd-header-wrap { padding: 0 48px; }
+  .sd-body { padding: 40px 48px 60px; }
+}
+
 @media (max-width: 1024px) {
   .sd-topbar { padding: 14px 40px; }
-  .sd-header { padding: 0 40px; }
-  .sd-body   { padding: 32px 40px 60px; gap: 32px; }
+  .sd-header-wrap { padding: 0 40px; }
+  .sd-body { padding: 32px 40px 60px; gap: 32px; }
+  .sd-product-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
   .sd-topbar { padding: 12px 24px; }
-  .sd-header { padding: 0 24px; }
-  .sd-body   { grid-template-columns: 1fr; padding: 24px 24px 48px; }
+  .sd-breadcrumb { display: none; }
+  .sd-header-wrap { padding: 0 24px; margin-top: -40px; }
+  .sd-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .sd-header-info { width: 100%; }
+  .sd-header-top { flex-direction: column; gap: 8px; }
+  .sd-shop-name { font-size: 24px; }
+  .sd-body { grid-template-columns: 1fr; padding: 24px 24px 48px; }
+  .sd-body > *:first-child { order: 2; }
+  .sd-body > *:last-child  { order: 1; }
+  .sd-product-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .sd-products-header { flex-direction: column; align-items: flex-start; }
+  .sd-sort-wrap { flex-wrap: wrap; gap: 8px; }
+  .sd-reviews-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .sd-sidebar-card { padding: 20px; }
 }
 
 @media (max-width: 480px) {
   .sd-topbar { padding: 12px 16px; }
-  .sd-header { padding: 0 16px; }
-  .sd-body   { padding: 20px 16px 40px; }
+  .sd-header-wrap { padding: 0 16px; }
+  .sd-body { padding: 20px 16px 40px; }
+  .sd-product-grid { grid-template-columns: 1fr; gap: 12px; }
+  .sd-banner { height: 180px; }
+  .sd-shop-name { font-size: 22px; }
+}
+
+/* TV / Large screens */
+@media (min-width: 1920px) {
+  .sd-topbar { padding: 14px 120px; }
+  .sd-header-wrap { padding: 0 120px; }
+  .sd-body { padding: 48px 120px 80px; }
 }

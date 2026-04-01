@@ -86,6 +86,8 @@ export default function Navbar({
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(null); // "shops" | "items" | null
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileShopsOpen, setMobileShopsOpen] = useState(false);
+  const [mobileItemsOpen, setMobileItemsOpen] = useState(false);
   const navRef = useRef(null);
 
   /* scroll shadow */
@@ -105,7 +107,12 @@ export default function Navbar({
   }, []);
 
   const toggle = (key) => setOpen((o) => (o === key ? null : key));
-  const close  = () => { setOpen(null); setMobileOpen(false); }
+  const close  = () => {
+    setOpen(null);
+    setMobileOpen(false);
+    setMobileShopsOpen(false);
+    setMobileItemsOpen(false);
+  };
 
   /* handlers forwarded to App */
   const handleItemClick = (label) => {
@@ -191,7 +198,7 @@ export default function Navbar({
           </button>
         </div>
 
-        {/* ── Mega-menu panels ── */}
+        {/* ── Mega-menu panels (desktop only) ── */}
         {open === "shops" && (
           <MegaMenu hero={SHOP_HERO} sections={SHOP_SECTIONS}
             onAllClick={() => { close(); onAllShopsClick?.(); }}
@@ -209,8 +216,61 @@ export default function Navbar({
         <div className="mobile-drawer">
           <div className="mobile-drawer-links">
             <button className="mobile-drawer-link" onClick={() => { close(); onSearchClick(); }}>🔍 Search</button>
-            <button className="mobile-drawer-link" onClick={() => { close(); onAllShopsClick?.(); }}>Shops</button>
-            <button className="mobile-drawer-link" onClick={() => { close(); onAllItemsClick?.(); }}>Items</button>
+
+            {/* ── Shops accordion ── */}
+            <button
+              className={`mobile-drawer-link mobile-drawer-accordion ${mobileShopsOpen ? "accordion-open" : ""}`}
+              onClick={() => { setMobileShopsOpen(o => !o); setMobileItemsOpen(false); }}
+            >
+              <span>Shops</span>
+              <span className="mobile-accordion-arrow">{mobileShopsOpen ? "▴" : "▾"}</span>
+            </button>
+            {mobileShopsOpen && (
+              <div className="mobile-accordion-panel">
+                {SHOP_SECTIONS.map(sec => (
+                  <div key={sec.heading} className="mobile-accordion-group">
+                    <div className="mobile-accordion-heading">{sec.heading}</div>
+                    {sec.items.map(item => (
+                      <button
+                        key={item}
+                        className="mobile-accordion-item"
+                        onClick={() => handleShopClick(item)}
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ── Items accordion ── */}
+            <button
+              className={`mobile-drawer-link mobile-drawer-accordion ${mobileItemsOpen ? "accordion-open" : ""}`}
+              onClick={() => { setMobileItemsOpen(o => !o); setMobileShopsOpen(false); }}
+            >
+              <span>Items</span>
+              <span className="mobile-accordion-arrow">{mobileItemsOpen ? "▴" : "▾"}</span>
+            </button>
+            {mobileItemsOpen && (
+              <div className="mobile-accordion-panel">
+                {ITEM_SECTIONS.map(sec => (
+                  <div key={sec.heading} className="mobile-accordion-group">
+                    <div className="mobile-accordion-heading">{sec.heading}</div>
+                    {sec.items.map(item => (
+                      <button
+                        key={item}
+                        className="mobile-accordion-item"
+                        onClick={() => handleItemClick(item)}
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+
             <button className="mobile-drawer-link" onClick={() => { close(); onAboutClick?.(); }}>About Us</button>
             {user ? (
               <>

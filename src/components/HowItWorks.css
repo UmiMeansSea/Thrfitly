@@ -60,6 +60,29 @@
   color: rgba(250,246,236,0.55); font-weight: 300;
 }
 
-@media (max-width: 1024px) { #how-it-works { padding: 80px 40px; } }
-@media (max-width: 768px)  { #how-it-works { padding: 60px 24px; } }
-@media (max-width: 480px)  { #how-it-works { padding: 48px 16px; } }
+@media (max-width: 1280px) { 
+  #how-it-works { padding: 100px 48px; }
+  .steps-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 1024px) { 
+  #how-it-works { padding: 80px 40px; }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+@media (max-width: 768px) {
+  #how-it-works { padding: 60px 24px; }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .step-card { padding: 28px 20px; }
+  .hiw-header { margin-bottom: 48px; }
+  .hiw-sub { font-size: 14px; }
+}
+@media (max-width: 480px) {
+  #how-it-works { padding: 48px 16px; }
+  .steps-grid { grid-template-columns: 1fr; gap: 12px; }
+  .step-card { padding: 24px 18px; }
+  .step-num { font-size: 44px; }
+}
+
+/* TV / Large screens */
+@media (min-width: 1920px) {
+  #how-it-works { padding: 120px 120px; }
+}

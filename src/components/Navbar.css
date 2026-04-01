@@ -348,6 +348,8 @@
     z-index: 498;
     box-shadow: 0 16px 40px rgba(45,36,22,0.12);
     animation: megaSlideIn 0.22s cubic-bezier(0.16,1,0.3,1);
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
   }
 
   .mobile-drawer-links {
@@ -368,12 +370,81 @@
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
     text-decoration: none;
-    display: block;
     min-height: 48px;
     display: flex;
     align-items: center;
+    width: 100%;
   }
   .mobile-drawer-link:hover { background: var(--cream); color: var(--moss); }
+
+  /* ── Accordion trigger ── */
+  .mobile-drawer-accordion {
+    justify-content: space-between;
+  }
+  .mobile-drawer-accordion.accordion-open {
+    background: var(--cream);
+    color: var(--moss);
+  }
+  .mobile-accordion-arrow {
+    font-size: 10px;
+    opacity: 0.6;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  /* ── Accordion panel ── */
+  .mobile-accordion-panel {
+    background: var(--parchment, #F5EED8);
+    border-top: 1px solid rgba(45,36,22,0.06);
+    border-bottom: 1px solid rgba(45,36,22,0.06);
+    padding: 8px 0 12px;
+    animation: megaSlideIn 0.18s ease;
+  }
+
+  .mobile-accordion-group {
+    padding: 0 24px;
+    margin-top: 12px;
+  }
+  .mobile-accordion-group:first-child { margin-top: 4px; }
+
+  .mobile-accordion-heading {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted, #8A7D68);
+    padding: 6px 0 8px;
+    border-bottom: 1px solid rgba(45,36,22,0.08);
+    margin-bottom: 4px;
+  }
+
+  .mobile-accordion-item {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 10px 0 10px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--soil, #2D2416);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s, padding-left 0.15s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .mobile-accordion-item:hover {
+    background: rgba(92,107,58,0.08);
+    color: var(--moss, #5C6B3A);
+    padding-left: 18px;
+  }
+  .mobile-accordion-item:active {
+    background: rgba(92,107,58,0.15);
+  }
 
   .mobile-drawer-cta {
     margin: 8px 24px 0;
@@ -382,6 +453,7 @@
     border-radius: 8px;
     justify-content: center;
     padding: 14px 24px;
+    width: calc(100% - 48px);
   }
   .mobile-drawer-cta:hover { background: var(--moss) !important; }
 
@@ -392,6 +464,7 @@
 @media (max-width: 480px) {
   .navbar { padding: 0 16px; height: 56px; }
   .nav-logo-text { font-size: 18px; }
-  .mobile-drawer { top: 56px; }
+  .mobile-drawer { top: 56px; max-height: calc(100vh - 56px); }
   .mega-backdrop { top: 56px; }
+  .mobile-accordion-item { font-size: 14px; }
 }

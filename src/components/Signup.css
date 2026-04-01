@@ -1,7 +1,7 @@
 #signup {
   padding: 120px 64px;
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 100px; align-items: start;
+  gap: 80px; align-items: start;
 }
 
 .signup-info { padding-top: 12px; }
@@ -69,3 +69,39 @@
 }
 .signup-msg-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 .signup-msg-success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+
+/* ── Responsive Signup ── */
+@media (max-width: 1280px) {
+  #signup { padding: 100px 48px; gap: 60px; }
+}
+
+@media (max-width: 1024px) {
+  #signup { padding: 80px 40px; gap: 48px; }
+}
+
+@media (max-width: 768px) {
+  #signup {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 60px 24px;
+  }
+  .signup-form {
+    padding: 32px 24px;
+  }
+  .form-row-2 {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .signup-body { max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+  #signup { padding: 48px 16px; }
+  .signup-form { padding: 24px 16px; border-radius: 14px; }
+  .form-title { font-size: 20px; }
+}
+
+/* ── TV / Large screens ── */
+@media (min-width: 1920px) {
+  #signup { padding: 120px 120px; }
+}
