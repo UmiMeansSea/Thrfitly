@@ -155,13 +155,21 @@ router.post("/register", async (req, res) => {
     req.session.email  = user.email;
     req.session.role   = user.role;
 
-    return res.status(201).json({
-      message: "Account created successfully.",
-      user: {
-        id: user._id, firstName: user.firstName, lastName: user.lastName,
-        email: user.email, role: user.role,
-        phone: user.phone, bio: user.bio, avatarUrl: user.avatarUrl,
-      },
+    // Save session to MongoDB before responding
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ message: "Session error. Please try logging in again." });
+      }
+
+      return res.status(201).json({
+        message: "Account created successfully.",
+        user: {
+          id: user._id, firstName: user.firstName, lastName: user.lastName,
+          email: user.email, role: user.role,
+          phone: user.phone, bio: user.bio, avatarUrl: user.avatarUrl,
+        },
+      });
     });
   } catch (err) {
     console.error("Register error:", err);
@@ -187,21 +195,31 @@ router.post("/login", async (req, res) => {
     req.session.email  = user.email;
     req.session.role   = user.role;
 
-    const responseUser = {
-      id: user._id, firstName: user.firstName, lastName: user.lastName,
-      email: user.email, role: user.role,
-      phone: user.phone || "", bio: user.bio || "", avatarUrl: user.avatarUrl || "",
-    };
-
-    if (user.role === "seller") {
-      const seller = await Seller.findOne({ userId: user._id });
-      if (seller) {
-        responseUser.shopName  = seller.shopName;
-        responseUser.isApproved = seller.isApproved;
+    // Save session to MongoDB before responding
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ message: "Session error. Please try again." });
       }
-    }
 
-    return res.status(200).json({ message: "Logged in successfully.", user: responseUser });
+      const responseUser = {
+        id: user._id, firstName: user.firstName, lastName: user.lastName,
+        email: user.email, role: user.role,
+        phone: user.phone || "", bio: user.bio || "", avatarUrl: user.avatarUrl || "",
+      };
+
+      if (user.role === "seller") {
+        Seller.findOne({ userId: user._id }).then(seller => {
+          if (seller) {
+            responseUser.shopName = seller.shopName;
+            responseUser.isApproved = seller.isApproved;
+          }
+          return res.status(200).json({ message: "Logged in successfully.", user: responseUser });
+        });
+      } else {
+        return res.status(200).json({ message: "Logged in successfully.", user: responseUser });
+      }
+    });
   } catch (err) {
     console.error("Login error:", err);
     return res.status(500).json({ message: "Server error. Please try again." });

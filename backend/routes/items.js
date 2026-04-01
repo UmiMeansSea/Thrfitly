@@ -35,6 +35,10 @@ const upload = multer({
 
 // Auth middleware — must be logged in as a seller
 function requireApprovedSeller(req, res, next) {
+  console.log("[DEBUG] requireApprovedSeller - req.session:", req.session);
+  console.log("[DEBUG] requireApprovedSeller - req.session.userId:", req.session?.userId);
+  console.log("[DEBUG] requireApprovedSeller - req.session.role:", req.session?.role);
+  
   if (!req.session.userId) {
     return res.status(401).json({ message: "Please log in first." });
   }
