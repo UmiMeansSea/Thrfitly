@@ -310,7 +310,7 @@ router.post("/conversations/:conversationId/messages", chatUpload.array("images"
     const text = sanitizeText(req.body?.text);
     
     // Handle uploaded images (now from Cloudinary - full HTTPS URLs)
-    const images = req.files?.map(file => file.path) || [];
+    const images = req.files?.map(file => file.secure_url) || [];
     
     // Allow messages with text OR images (or both)
     if (!text && images.length === 0) {

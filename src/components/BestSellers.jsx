@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import "./BestSellers.css";
 
-import { API_BASE as API, IMG_BASE } from "../config.js";
+import { API_BASE as API } from "../config.js";
+import { assetUrl } from "../utils/assetUrl";
 
 function ItemCard({ item, delay, onItemClick }) {
   const displayItem = {
@@ -14,11 +15,17 @@ function ItemCard({ item, delay, onItemClick }) {
     ...item,
   };
 
+  console.log(`🖼️ ItemCard ${displayItem.name}:`, {
+    rawImage: item.images?.[0],
+    processedImage: displayItem.image,
+    assetUrl: displayItem.image ? assetUrl(displayItem.image) : "N/A",
+  });
+
   return (
     <div className={`bestseller-card reveal reveal-delay-${delay}`} onClick={() => onItemClick?.(item)}>
       <div className="bestseller-card-image">
         {displayItem.image ? (
-          <img src={`${IMG_BASE}${displayItem.image}`} alt={displayItem.name} />
+          <img src={assetUrl(displayItem.image)} alt={displayItem.name} />
         ) : (
           <div className="bestseller-card-placeholder">📦</div>
         )}
@@ -53,6 +60,14 @@ export default function BestSellers({ onItemClick }) {
         const data = await res.ok ? await res.json() : { items: [] };
         // Sort by viewCount descending (most viewed first)
         const sorted = (data.items || []).sort((a, b) => (b.itemViewCount || b.viewCount || 0) - (a.itemViewCount || a.viewCount || 0));
+        console.log("📊 BestSellers API Response:", {
+          totalItems: sorted.length,
+          items: sorted.map((i) => ({
+            name: i.itemName || i.name,
+            images: i.images,
+            firstImage: i.images?.[0],
+          })),
+        });
         setItems(sorted);
       } catch (err) {
         console.error("Failed to fetch top items:", err);
