@@ -215,7 +215,7 @@ export default function ProductDetail({
                     className={`pd-thumb ${activeImg === i ? "active" : ""}`}
                     onClick={() => setActiveImg(i)}
                   >
-                    <img src={src} alt={`${displayProduct?.name} ${i + 1}`} className="pd-thumb-img" loading="lazy" />
+                    <img src={src} alt={`${displayProduct?.name} ${i + 1}`} className="pd-thumb-img" />
                   </div>
                 ))
               : thumbPalettes.map((pal, i) => (
@@ -236,7 +236,6 @@ export default function ProductDetail({
                 src={realImages[activeImg] || realImages[0]}
                 alt={displayProduct?.name}
                 className="pd-main-photo"
-                loading="lazy"
               />
             ) : (
               <>
@@ -414,7 +413,7 @@ export default function ProductDetail({
               return (
                 <div key={p._id || p.id} className="pd-related-card" onClick={() => onRelatedProduct(p)}>
                   <div className="pd-related-img" style={relImg ? {} : { background: p.palette }}>
-                    {relImg && <img src={relImg} alt={p.name} className="pd-related-photo" loading="lazy" />}
+                    {relImg && <img src={relImg} alt={p.name} className="pd-related-photo" />}
                   </div>
                   <div className="pd-related-info">
                     <p className="pd-related-category">{p.category}</p>
