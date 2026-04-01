@@ -73,7 +73,12 @@ app.use((req, res, next) => {
 // Get allowed origins from env or default to localhost
 const corsOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(",")
-  : ["http://localhost:5173", "http://localhost:5174"];
+  : [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://thriftly-git-master-umimeansseas-projects.vercel.app",
+      "https://thriftly-2g76h4srw-umimeansseas-projects.vercel.app"
+    ];
 
 app.use(
   cors({
@@ -99,8 +104,9 @@ app.use(
       // Always use a real maxAge (never session-only) for reliability across browsers.
       maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true,
+      // For production: allow cross-site cookies for Vercel frontend
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production", // Must be true for sameSite: "none"
     },
   })
 );

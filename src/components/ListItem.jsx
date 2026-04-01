@@ -132,7 +132,13 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem, onRef
   useEffect(() => {
     if (!user || (serverRole !== "seller" && user.role !== "seller")) return;
     fetch(`${API}/shop/my`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r) => {
+        if (r.status === 401) {
+          handleSessionExpired();
+          return null;
+        }
+        return r.ok ? r.json() : null;
+      })
       .then((data) => {
         if (data?.seller) {
           setMyShop({ shopName: data.seller.shopName, slug: data.seller.slug || "" });
