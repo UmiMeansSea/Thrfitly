@@ -168,7 +168,7 @@ export default function AllShopsDirectory({ onBack, onShopClick, filterTag = nul
               )}
               <div className="allshops-card-body">
                 {s.shopLogoUrl ? (
-                  <img src={s.shopLogoUrl} alt="" className="allshops-card-logoimg" />
+                  <img src={s.shopLogoUrl} alt="" className="allshops-card-logoimg" loading="lazy" />
                 ) : (
                   <div className="allshops-card-logo">🏪</div>
                 )}

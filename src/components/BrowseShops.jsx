@@ -31,7 +31,7 @@ function ShopCard({ shop, delay, onShopClick }) {
         style={bannerUrl ? { backgroundImage: `url(${bannerUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
       >
         {logoUrl ? (
-          <img src={logoUrl} alt="" className="shop-logo-img" />
+          <img src={logoUrl} alt="" className="shop-logo-img" loading="lazy" />
         ) : (
           <div className="shop-logo">🛍️</div>
         )}
