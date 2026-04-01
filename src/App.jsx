@@ -44,39 +44,7 @@ export default function App() {
       return cookies.find(cookie => cookie.startsWith(`${name}=`));
     };
 
-  // Auto-login from cookie if exists
-    const authCookie = getCookie('thriftly_auth');
-    if (authCookie) {
-      try {
-        const token = authCookie.split('=')[1];
-        if (token) {
-          // Validate token with server
-          fetch(`${API_BASE}/auth/validate-token`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token })
-          })
-          .then(r => r.ok ? r.json() : null)
-          .then(data => {
-            if (data?.valid && data?.user) {
-              setUser(data.user);
-              loadCartFromServer().catch(() => {});
-              // Update cookie with new token
-              const expires = new Date();
-              expires.setDate(expires.getDate() + 7); // 7 days
-              document.cookie = `thriftly_auth=${data.token}; expires=${expires.toUTCString()}; path=/;`;
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Token validation failed:', error);
-        // Invalid token, remove cookie
-        document.cookie = 'thriftly_auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
-      }
-      }
-    }
-
-    // Fallback: check session via API if cookie fails
+  // Auto-login from cookie if exists (HTTP-only cookies sent automatically)
     fetch(`${API_BASE}/auth/me`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
       .then(async (data) => {
@@ -245,15 +213,6 @@ export default function App() {
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     loadCartFromServer().catch(() => {});
-    setPage("home");
-    window.scrollTo(0, 0);
-  };
-
-  const handleLogout = async () => {
-    try { await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "include" }); } catch {}
-    setUser(null);
-    setCartItems([]);
-    setInitialChatContext(null);
     setPage("home");
     window.scrollTo(0, 0);
   };

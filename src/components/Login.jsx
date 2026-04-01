@@ -27,14 +27,15 @@ export default function Login({ onBack, onLoginSuccess }) {
     if (!loginEmail || !loginPassword) { setError("Please fill in all fields."); return; }
     setLoading(true);
     try {
-      const res = await fetch(`${API}/auth/register`, {
+      const res = await fetch(`${API}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName: regFirstName, lastName: regLastName, email: regEmail, password: regPassword, role: "buyer" }),
+        credentials: "include",
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.message || "Registration failed."); return; }
-      setSuccess("✓ Account created successfully!");
+      if (!res.ok) { setError(data.message || "Login failed."); return; }
+      setSuccess("✓ Logged in successfully!");
       setTimeout(() => onLoginSuccess(data.user), 600);
     } catch { setError("Network error. Is the backend running?"); }
     finally { setLoading(false); }
