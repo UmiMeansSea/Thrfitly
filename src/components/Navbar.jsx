@@ -106,13 +106,19 @@ export default function Navbar({
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
+
   const toggle = (key) => setOpen((o) => (o === key ? null : key));
-  const close  = () => {
+
+  /* close EVERYTHING (backdrop click, logo click, desktop link click) */
+  const close = () => {
     setOpen(null);
     setMobileOpen(false);
     setMobileShopsOpen(false);
     setMobileItemsOpen(false);
   };
+
+  /* close ONLY the desktop mega menu (nav mouse-leave) — never touch mobile state */
+  const closeDesktopMenu = () => setOpen(null);
 
   /* handlers forwarded to App */
   const handleItemClick = (label) => {
@@ -147,7 +153,7 @@ export default function Navbar({
   return (
     <>
       {/* ── Nav bar ──────────────────────────────────── */}
-      <nav ref={navRef} className={`navbar ${scrolled ? "scrolled" : ""} ${open ? "menu-open" : ""}`} onMouseLeave={close}>
+      <nav ref={navRef} className={`navbar ${scrolled ? "scrolled" : ""} ${open ? "menu-open" : ""}`} onMouseLeave={closeDesktopMenu}>
         {/* Logo */}
         <a href="#" className="nav-logo" onClick={close}>
           <div className="nav-logo-icon">♻</div>
