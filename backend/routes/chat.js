@@ -1,11 +1,41 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 const Conversation = require("../models/Conversation");
 const Message = require("../models/Message");
 const Seller = require("../models/Seller");
 const User = require("../models/User");
+
+// Ensure chat uploads directory exists
+const chatUploadsDir = path.join(__dirname, "..", "uploads", "chat");
+if (!fs.existsSync(chatUploadsDir)) {
+  fs.mkdirSync(chatUploadsDir, { recursive: true });
+}
+
+// Multer config for chat image uploads
+const chatStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, chatUploadsDir),
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
+  },
+});
+
+const chatUpload = multer({
+  storage: chatStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /jpeg|jpg|png|gif|webp/;
+    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
+    const mime = allowed.test(file.mimetype);
+    if (ext && mime) return cb(null, true);
+    cb(new Error("Only image files are allowed."));
+  },
+});
 
 
 function requireAuth(req, res, next) {
@@ -257,7 +287,7 @@ router.get("/conversations/:conversationId/messages", async (req, res) => {
 });
 
 // POST /api/chat/conversations/:conversationId/messages
-router.post("/conversations/:conversationId/messages", async (req, res) => {
+router.post("/conversations/:conversationId/messages", chatUpload.array("images", 5), async (req, res) => {
   try {
     const conversation = await Conversation.findById(req.params.conversationId);
     if (!conversation) return res.status(404).json({ message: "Conversation not found." });
@@ -269,16 +299,24 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
 
     const senderRole = req.session.role === "seller" ? "seller" : "buyer";
     const text = sanitizeText(req.body?.text);
-    if (!text) return res.status(400).json({ message: "Message text is required." });
+    
+    // Handle uploaded images
+    const images = req.files?.map(file => `/uploads/chat/${file.filename}`) || [];
+    
+    // Allow messages with text OR images (or both)
+    if (!text && images.length === 0) {
+      return res.status(400).json({ message: "Message text or images are required." });
+    }
 
     const message = await Message.create({
       conversationId: conversation._id,
       senderId,
       senderRole,
       text,
+      images,
     });
 
-    conversation.lastMessage = text;
+    conversation.lastMessage = text || (images.length > 0 ? "📷 Image" : "");
     conversation.lastMessageAt = message.createdAt;
     await conversation.save();
 

@@ -9,8 +9,11 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
   const [activeConversation, setActiveConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
-  const [senderNames, setSenderNames] = useState({}); // Phase 5: Cache sender names
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [senderNames, setSenderNames] = useState({});
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const socket = useMemo(() => io(API_ORIGIN, { withCredentials: true }), []);
 
@@ -156,22 +159,73 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    // Limit to 5 images total
+    const totalImages = selectedImages.length + files.length;
+    if (totalImages > 5) {
+      alert("Maximum 5 images allowed.");
+      return;
+    }
+    
+    const newImages = [...selectedImages, ...files];
+    setSelectedImages(newImages);
+    
+    // Create previews
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews([...imagePreviews, ...newPreviews]);
+  };
+
+  const removeSelectedImage = (index) => {
+    const newImages = selectedImages.filter((_, i) => i !== index);
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    
+    // Revoke object URL to free memory
+    URL.revokeObjectURL(imagePreviews[index]);
+    
+    setSelectedImages(newImages);
+    setImagePreviews(newPreviews);
+  };
+
   const sendMessage = async () => {
-    if (!activeConversation?._id || !draft.trim()) return;
+    if (!activeConversation?._id) return;
+    
     const text = draft.trim();
-    setDraft("");
+    
+    // Allow sending if there's text OR images
+    if (!text && selectedImages.length === 0) return;
+    
     const tempId = `pending-${Date.now()}`;
-    setMessages((prev) => [
-      ...prev,
-      { _id: tempId, text, senderId: user?.id, senderRole: "buyer", pending: true },
-    ]);
+    
+    // Create optimistic message with previews
+    const optimisticMessage = {
+      _id: tempId,
+      text,
+      senderId: user?.id,
+      senderRole: user?.role || "buyer",
+      pending: true,
+      images: imagePreviews,
+    };
+    
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setDraft("");
+    setSelectedImages([]);
+    setImagePreviews([]);
+    
     try {
+      // Use FormData for image uploads
+      const formData = new FormData();
+      if (text) formData.append("text", text);
+      selectedImages.forEach(file => formData.append("images", file));
+      
       const res = await fetch(`${API_BASE}/chat/conversations/${activeConversation._id}/messages`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ text }),
+        body: formData,
       });
+      
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.message) {
         setMessages((prev) => {
@@ -224,13 +278,27 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
               <div className="chat-body">
                 {messages.map((m) => (
                   <div key={m._id} className={`bubble ${m.senderId === user?.id ? "mine" : ""} ${m.pending ? "pending" : ""}`}>
-                    {/* Phase 5: Show sender identity unless it's the user's own message */}
+                    {/* Show sender identity unless it's the user's own message */}
                     {m.senderId !== user?.id && (
                       <div style={{ fontSize: "0.85em", fontWeight: "600", marginBottom: "4px", opacity: 0.7 }}>
                         {senderNames[m.senderId] || "User"}
                       </div>
                     )}
                     <div>{m.text}</div>
+                    {/* Display attached images */}
+                    {m.images?.length > 0 && (
+                      <div className="message-images">
+                        {m.images.map((img, idx) => (
+                          <img
+                            key={idx}
+                            src={img.startsWith("http") ? img : `${API_BASE}${img}`}
+                            alt={`Attachment ${idx + 1}`}
+                            className="message-image"
+                            onClick={() => window.open(img.startsWith("http") ? img : `${API_BASE}${img}`, "_blank")}
+                          />
+                        ))}
+                      </div>
+                    )}
                     {/* Checkout summary card */}
                     {m.meta?.cardType === "checkout_summary" && m.meta?.lineItems?.length > 0 && (
                       <ul className="bubble-cart-list">
@@ -241,7 +309,7 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
                         ))}
                       </ul>
                     )}
-                    {/* Phase 2: Purchase intent card */}
+                    {/* Purchase intent card */}
                     {m.meta?.cardType === "purchase_intent" && (
                       <div style={{ marginTop: "8px", padding: "8px", backgroundColor: "#f5f5f5", borderRadius: "6px", fontSize: "0.9em" }}>
                         <strong>Item:</strong> {m.meta.productName || "Item"}<br/>
@@ -250,15 +318,52 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
                     )}
                   </div>
                 ))}
+                <div ref={messagesEndRef} />
               </div>
-              <div className="chat-input">
-                <input
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-                  placeholder="Type a message…"
-                />
-                <button onClick={sendMessage}>Send</button>
+              <div className="chat-input-area">
+                {/* Image previews before sending */}
+                {imagePreviews.length > 0 && (
+                  <div className="image-preview-row">
+                    {imagePreviews.map((preview, idx) => (
+                      <div key={idx} className="preview-thumb">
+                        <img src={preview} alt={`Preview ${idx + 1}`} />
+                        <button
+                          type="button"
+                          className="remove-image"
+                          onClick={() => removeSelectedImage(idx)}
+                          title="Remove image"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="chat-input">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageSelect}
+                    style={{ display: "none" }}
+                  />
+                  <button
+                    type="button"
+                    className="attach-btn"
+                    onClick={() => fileInputRef.current?.click()}
+                    title="Attach images"
+                  >
+                    📎
+                  </button>
+                  <input
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+                    placeholder="Type a message…"
+                  />
+                  <button onClick={sendMessage}>Send</button>
+                </div>
               </div>
             </>
           ) : (

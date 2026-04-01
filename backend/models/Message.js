@@ -16,6 +16,7 @@ const messageSchema = new mongoose.Schema(
     senderId: { type: String, required: true },
     senderRole: { type: String, enum: ["buyer", "seller", "system"], default: "buyer" },
     text: { type: String, default: "" },
+    images: [{ type: String }], // Array of image paths/URLs
     meta: {
       type: {
         cardType: { type: String, default: "" },
