@@ -158,9 +158,12 @@ router.post("/register", async (req, res) => {
     // Save session to MongoDB before responding
     req.session.save((err) => {
       if (err) {
-        console.error("Session save error:", err);
+        console.error("[DEBUG] Register session save error:", err);
         return res.status(500).json({ message: "Session error. Please try logging in again." });
       }
+      
+      console.log("[DEBUG] Register session saved successfully. Session ID:", req.sessionID);
+      console.log("[DEBUG] Session userId:", req.session.userId);
 
       return res.status(201).json({
         message: "Account created successfully.",
@@ -198,9 +201,13 @@ router.post("/login", async (req, res) => {
     // Save session to MongoDB before responding
     req.session.save(async (err) => {
       if (err) {
-        console.error("Session save error:", err);
+        console.error("[DEBUG] Login session save error:", err);
         return res.status(500).json({ message: "Session error. Please try again." });
       }
+      
+      console.log("[DEBUG] Login session saved successfully. Session ID:", req.sessionID);
+      console.log("[DEBUG] Session userId:", req.session.userId);
+      console.log("[DEBUG] Session role:", req.session.role);
 
       const responseUser = {
         id: user._id, firstName: user.firstName, lastName: user.lastName,
