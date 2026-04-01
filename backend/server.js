@@ -59,6 +59,17 @@ app.use((req, _res, next) => {
   next();
 });
 
+// Debug middleware for session issues
+app.use((req, res, next) => {
+  if (req.url.includes('/items') || req.url.includes('/auth')) {
+    console.log(`[DEBUG] ${req.method} ${req.url}`);
+    console.log(`[DEBUG] Session ID:`, req.sessionID);
+    console.log(`[DEBUG] Session userId:`, req.session?.userId);
+    console.log(`[DEBUG] Cookies:`, req.headers.cookie);
+  }
+  next();
+});
+
 // Get allowed origins from env or default to localhost
 const corsOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(",")

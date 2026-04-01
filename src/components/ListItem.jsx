@@ -32,7 +32,15 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem, onRef
 
   useEffect(() => {
     fetch(`${API}/auth/me`, { credentials: "include" })
-      .then(r => r.ok ? r.json() : null)
+      .then(r => {
+        if (!r.ok) {
+          // Session expired or invalid
+          console.warn("Session check failed:", r.status);
+          onSessionExpired?.();
+          return null;
+        }
+        return r.json();
+      })
       .then(data => {
         if (data?.user?.role) {
           setServerRole(data.user.role);
@@ -42,7 +50,10 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem, onRef
           }
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.error("Auth check error:", err);
+        onSessionExpired?.();
+      })
       .finally(() => setRoleChecked(true));
   }, []);
 
@@ -97,11 +108,23 @@ export default function ListItem({ onBack, user, onViewMyShop, onViewItem, onRef
   const fetchItems = async () => {
     try {
       const res = await fetch(`${API}/items/my`, { credentials: "include" });
+      
+      if (res.status === 401) {
+        // Session expired
+        console.warn("Session expired while fetching items");
+        handleSessionExpired();
+        return;
+      }
+      
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
+      } else {
+        console.error("Failed to fetch items:", res.status);
       }
-    } catch { /* silent */ }
+    } catch (err) {
+      console.error("Fetch items error:", err);
+    }
   };
 
   useEffect(() => { fetchItems(); }, []);

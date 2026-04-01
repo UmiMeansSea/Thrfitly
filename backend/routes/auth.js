@@ -196,7 +196,7 @@ router.post("/login", async (req, res) => {
     req.session.role   = user.role;
 
     // Save session to MongoDB before responding
-    req.session.save((err) => {
+    req.session.save(async (err) => {
       if (err) {
         console.error("Session save error:", err);
         return res.status(500).json({ message: "Session error. Please try again." });
@@ -208,15 +208,18 @@ router.post("/login", async (req, res) => {
         phone: user.phone || "", bio: user.bio || "", avatarUrl: user.avatarUrl || "",
       };
 
-      if (user.role === "seller") {
-        Seller.findOne({ userId: user._id }).then(seller => {
+      try {
+        if (user.role === "seller") {
+          const seller = await Seller.findOne({ userId: user._id });
           if (seller) {
             responseUser.shopName = seller.shopName;
             responseUser.isApproved = seller.isApproved;
           }
-          return res.status(200).json({ message: "Logged in successfully.", user: responseUser });
-        });
-      } else {
+        }
+        return res.status(200).json({ message: "Logged in successfully.", user: responseUser });
+      } catch (sellerErr) {
+        console.error("Seller lookup error:", sellerErr);
+        // Still return user data even if seller lookup fails
         return res.status(200).json({ message: "Logged in successfully.", user: responseUser });
       }
     });
