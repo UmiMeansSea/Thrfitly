@@ -24,7 +24,7 @@ const httpServer = http.createServer(app);
 
 // ── Middleware ─────────────────────────────────────────────
 app.use(express.json());
-// Allow <img> / fetch from Vite (different port) to load /uploads/* on this API.
+// All images (shop logos, banners, item photos) are now stored on Cloudinary
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -118,17 +118,8 @@ app.use(
   })
 );
 
-// ── Static uploads ─────────────────────────────────────────
-// Serve with explicit CORS headers so images load from frontend
-const uploadsCorsOrigin = process.env.CORS_ORIGIN?.split(",")[0] || "http://localhost:5173";
-app.use("/uploads", (req, res, next) => {
-  res.header("Access-Control-Allow-Origin", uploadsCorsOrigin);
-  res.header("Access-Control-Allow-Methods", "GET");
-  res.header("Cross-Origin-Resource-Policy", "cross-origin");
-  next();
-}, express.static(path.join(__dirname, "uploads")));
-
 // ── Routes ─────────────────────────────────────────────────
+// Images are now served from Cloudinary, not local storage
 app.use("/api/auth", authRoutes);
 app.use("/api/shop", shopRoutes);
 app.use("/api/shops", shopsRoutes);

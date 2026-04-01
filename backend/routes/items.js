@@ -1,32 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
 const Item = require("../models/Item");
 const Seller = require("../models/Seller");
+const { storage } = require("../cloudinary");
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, "..", "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Multer config for image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  },
-});
-
+// Multer config for image uploads with Cloudinary
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
   fileFilter: (req, file, cb) => {
     const allowed = /jpeg|jpg|png|gif|webp/;
-    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
+    const ext = allowed.test(file.originalname.toLowerCase().split(".").pop());
     const mime = allowed.test(file.mimetype);
     if (ext && mime) return cb(null, true);
     cb(new Error("Only image files are allowed."));
@@ -140,7 +125,7 @@ router.post("/", requireApprovedSeller, upload.array("images", 5), async (req, r
       return res.status(400).json({ message: "Item name and price are required." });
     }
 
-    const images = req.files ? req.files.map((f) => `/uploads/${f.filename}`) : [];
+    const images = req.files ? req.files.map((f) => f.path) : [];
     console.log("[DEBUG] Images to save:", images);
 
     const item = new Item({

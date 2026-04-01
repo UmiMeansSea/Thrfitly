@@ -1,8 +1,6 @@
 const express    = require("express");
 const router     = express.Router();
 const crypto     = require("crypto");
-const path       = require("path");
-const fs         = require("fs");
 const multer     = require("multer");
 const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -10,23 +8,14 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const ShopRequest = require("../models/ShopRequest");
 const Seller     = require("../models/Seller");
 const User       = require("../models/User");
+const { storage } = require("../cloudinary");
 
-const uploadsDir = path.join(__dirname, "..", "uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  },
-});
 const uploadBranding = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = /jpeg|jpg|png|gif|webp/;
-    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
+    const ext = allowed.test(file.originalname.toLowerCase().split(".").pop());
     const mime = allowed.test(file.mimetype);
     if (ext && mime) return cb(null, true);
     cb(new Error("Only image files are allowed."));
@@ -206,8 +195,8 @@ router.post(
   async (req, res) => {
     try {
       const seller = req.sellerRecord;
-      if (req.files?.header?.[0]) seller.headerImageUrl = `/uploads/${req.files.header[0].filename}`;
-      if (req.files?.logo?.[0]) seller.shopLogoUrl = `/uploads/${req.files.logo[0].filename}`;
+      if (req.files?.header?.[0]) seller.headerImageUrl = req.files.header[0].path;
+      if (req.files?.logo?.[0]) seller.shopLogoUrl = req.files.logo[0].path;
       await seller.save();
       return res.status(200).json({
         message: "Uploads saved.",
