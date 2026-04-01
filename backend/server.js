@@ -70,15 +70,19 @@ app.use((req, res, next) => {
   next();
 });
 
-// Get allowed origins from env or default to localhost
-const corsOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",")
-  : [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "https://thriftly-git-master-umimeansseas-projects.vercel.app",
-      "https://thriftly-2g76h4srw-umimeansseas-projects.vercel.app"
-    ];
+// Get allowed origins - always include production domains plus any from env
+const defaultOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://thriftly-git-master-umimeansseas-projects.vercel.app",
+  "https://thriftly-2g76h4srw-umimeansseas-projects.vercel.app"
+];
+
+const envOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : [];
+const corsOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
+
+console.log("[DEBUG] CORS Origins:", corsOrigins);
+console.log("[DEBUG] NODE_ENV:", process.env.NODE_ENV);
 
 app.use(
   cors({
