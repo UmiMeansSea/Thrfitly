@@ -62,8 +62,21 @@
 .messages-list {
   background: #f7f4ee;
   border-right: 1px solid rgba(26, 21, 16, 0.08);
-  padding: 0.75rem;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-list-header {
+  padding: 1rem 1.25rem 0.65rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1510;
+  border-bottom: 1px solid rgba(26, 21, 16, 0.07);
+  background: #f7f4ee;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .conv-item {
@@ -72,58 +85,102 @@
   text-align: left;
   border: none;
   background: transparent;
-  border-radius: 16px;
-  padding: 0.85rem 0.95rem;
-  margin-bottom: 6px;
+  padding: 0.75rem 1rem;
   cursor: pointer;
   transition: background 0.15s;
-  padding-right: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  border-bottom: 1px solid rgba(26, 21, 16, 0.05);
 }
 
 .conv-item:hover {
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.conv-item:hover .conv-delete {
-  opacity: 0.6;
-}
-
-.conv-delete {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-  transition: opacity 0.15s;
-  cursor: pointer;
-  padding: 0.25rem;
-  font-size: 0.9rem;
-  border-radius: 6px;
-}
-
-.conv-delete:hover {
-  opacity: 1 !important;
-  background: rgba(255, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.65);
 }
 
 .conv-item.active {
   background: #fff;
-  box-shadow: 0 2px 12px rgba(26, 21, 16, 0.08);
+}
+
+.conv-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.conv-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.conv-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
 .conv-title {
   font-weight: 650;
   font-size: 0.92rem;
   color: #1a1510;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conv-time {
+  font-size: 0.72rem;
+  color: #9c8e7a;
+  flex-shrink: 0;
+}
+
+.conv-row-bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
 }
 
 .conv-sub {
   font-size: 0.78rem;
-  color: #6b5f52;
-  margin-top: 0.2rem;
+  color: #7c6a50;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+}
+
+.conv-item:hover .conv-delete {
+  opacity: 0.5;
+}
+
+.conv-delete {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+}
+
+.conv-delete:hover {
+  opacity: 1 !important;
+  background: rgba(255, 0, 0, 0.1);
 }
 
 .messages-chat {

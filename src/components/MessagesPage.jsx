@@ -4,6 +4,45 @@ import "./MessagesPage.css";
 
 import { API_BASE, API_ORIGIN } from "../config.js";
 
+// Deduplicate conversations: keep only the latest per seller (by shopName)
+function deduplicateConversations(convs) {
+  const map = new Map();
+  for (const c of convs) {
+    const key = c.sellerId || c.shopName || c._id;
+    const existing = map.get(key);
+    if (!existing || new Date(c.updatedAt) > new Date(existing.updatedAt)) {
+      map.set(key, c);
+    }
+  }
+  return Array.from(map.values()).sort(
+    (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+  );
+}
+
+function formatTime(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffDays = Math.floor((now - d) / 86400000);
+  if (diffDays === 0) return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return d.toLocaleDateString([], { weekday: "short" });
+  return d.toLocaleDateString([], { day: "2-digit", month: "short" });
+}
+
+function getInitials(name = "") {
+  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "?";
+}
+
+const AVATAR_COLORS = [
+  "#5c6b3a","#7a6248","#3a6b5c","#6b3a5c","#3a4f6b","#6b5a3a","#4a6b3a","#6b3a3a",
+];
+function avatarColor(name = "") {
+  let hash = 0;
+  for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) & 0xffffffff;
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
 export default function MessagesPage({ user, initialChatContext, onBack }) {
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
@@ -250,19 +289,46 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
       </div>
       <div className="messages-layout">
         <aside className="messages-list">
-          {conversations.map((c) => (
-            <button key={c._id} type="button" className={`conv-item ${activeConversation?._id === c._id ? "active" : ""}`} onClick={() => loadMessages(c._id)}>
-              <div className="conv-title">{c.shopName || c.productName || "Conversation"}</div>
-              <div className="conv-sub">{c.lastMessage || "No messages yet"}</div>
-              <span
-                className="conv-delete"
-                onClick={(e) => deleteConversation(c._id, e)}
-                title="Delete conversation"
+          <div className="messages-list-header">
+            <span>Chats</span>
+          </div>
+          {deduplicateConversations(conversations).map((c) => {
+            const name = c.shopName || c.productName || "Conversation";
+            const isActive = activeConversation?._id === c._id;
+            const lastMsg = c.lastMessage || "No messages yet";
+            const time = formatTime(c.updatedAt);
+            return (
+              <button
+                key={c._id}
+                type="button"
+                className={`conv-item ${isActive ? "active" : ""}`}
+                onClick={() => loadMessages(c._id)}
               >
-                🗑️
-              </span>
-            </button>
-          ))}
+                <div
+                  className="conv-avatar"
+                  style={{ background: avatarColor(name) }}
+                >
+                  {getInitials(name)}
+                </div>
+                <div className="conv-info">
+                  <div className="conv-row-top">
+                    <span className="conv-title">{name}</span>
+                    <span className="conv-time">{time}</span>
+                  </div>
+                  <div className="conv-row-bottom">
+                    <span className="conv-sub">{lastMsg}</span>
+                  </div>
+                </div>
+                <span
+                  className="conv-delete"
+                  onClick={(e) => deleteConversation(c._id, e)}
+                  title="Delete conversation"
+                >
+                  🗑️
+                </span>
+              </button>
+            );
+          })}
         </aside>
         <section className="messages-chat">
           {activeConversation ? (
