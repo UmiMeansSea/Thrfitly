@@ -100,17 +100,13 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
       collectionName: "sessions",
-      // TTL matches the max keep-logged-in duration (30 days)
       ttl: 60 * 60 * 24 * 30,
     }),
     cookie: {
-      // Default: 7 days. Login route overrides to 30 days if keepLoggedIn=true.
-      // Always use a real maxAge (never session-only) for reliability across browsers.
       maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true,
-      // For production: allow cross-site cookies for Vercel frontend
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      secure: process.env.NODE_ENV === "production", // Must be true for sameSite: "none"
+      sameSite: "none",
+      secure: true,
     },
   })
 );
