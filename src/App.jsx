@@ -33,10 +33,11 @@ export default function App() {
   const [navFilterShopTag, setNavFilterShopTag] = useState(null);
   const API_BASE = import.meta.env?.VITE_API_ORIGIN ? `${import.meta.env.VITE_API_ORIGIN}/api` : "http://localhost:5000/api";
 
-  // ---------- Auth persistence (Issue 1) ----------------------------------
+  // ---------- Auth persistence ------------------------------------------
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Global session expiry handler — clears user and goes to login on any 401
+  // Called when an authenticated action fails mid-session (e.g. session died
+  // while the user was actively using the app). Redirects to login.
   const handleSessionExpired = () => {
     setUser(null);
     setCartItems([]);
@@ -44,17 +45,18 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  // On mount: silently check if the server has an active session.
+  // If NOT logged in (401) → just stay on home, do NOT redirect to login.
+  // Redirecting to login here caused every refresh to land on the login page.
   useEffect(() => {
     fetch(`${API_BASE}/auth/me`, { credentials: "include" })
-      .then(r => {
-        if (r.status === 401) { handleSessionExpired(); return null; }
-        return r.ok ? r.json() : null;
-      })
+      .then(r => r.ok ? r.json() : null)
       .then(async (data) => {
         if (data?.user) {
           setUser(data.user);
           await loadCartFromServer();
         }
+        // No session → leave user as null, stay on whatever page (home).
       })
       .catch(() => {})
       .finally(() => setAuthLoading(false));
