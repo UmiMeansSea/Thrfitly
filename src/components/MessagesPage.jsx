@@ -199,13 +199,15 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
     
     const tempId = `pending-${Date.now()}`;
     
-    // Create optimistic message with previews
+    // Handle uploaded images (now from Cloudinary - full HTTPS URLs)
+    const images = selectedImages.map(file => file.secure_url) || [];
     const optimisticMessage = {
       _id: tempId,
       text,
       senderId: user?.id,
       senderRole: user?.role || "buyer",
       pending: true,
+      images,
       images: imagePreviews,
     };
     
@@ -291,7 +293,7 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
                         {m.images.map((img, idx) => (
                           <img
                             key={idx}
-                            src={img.startsWith("http") ? img : `${API_BASE}${img}`}
+                            src={img}
                             alt={`Attachment ${idx + 1}`}
                             className="message-image"
                             onClick={() => window.open(img.startsWith("http") ? img : `${API_BASE}${img}`, "_blank")}
