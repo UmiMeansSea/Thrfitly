@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const path = require("path");
-const fs = require("fs");
 const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 const Conversation = require("../models/Conversation");
@@ -10,18 +10,22 @@ const Message = require("../models/Message");
 const Seller = require("../models/Seller");
 const User = require("../models/User");
 
-// Ensure chat uploads directory exists
-const chatUploadsDir = path.join(__dirname, "..", "uploads", "chat");
-if (!fs.existsSync(chatUploadsDir)) {
-  fs.mkdirSync(chatUploadsDir, { recursive: true });
-}
+// Import Cloudinary config for chat images
+const { cloudinary } = require("../cloudinary");
 
-// Multer config for chat image uploads
-const chatStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, chatUploadsDir),
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
+// Multer config for chat image uploads (using Cloudinary)
+const chatStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "thriftly/chat",
+    allowed_formats: ["jpg", "jpeg", "png", "gif", "webp"],
+    transformation: [
+      {
+        width: 800,
+        quality: "auto",
+        fetch_format: "auto",
+      },
+    ],
   },
 });
 
@@ -300,8 +304,8 @@ router.post("/conversations/:conversationId/messages", chatUpload.array("images"
     const senderRole = req.session.role === "seller" ? "seller" : "buyer";
     const text = sanitizeText(req.body?.text);
     
-    // Handle uploaded images
-    const images = req.files?.map(file => `/uploads/chat/${file.filename}`) || [];
+    // Handle uploaded images (now from Cloudinary - full HTTPS URLs)
+    const images = req.files?.map(file => file.path) || [];
     
     // Allow messages with text OR images (or both)
     if (!text && images.length === 0) {
