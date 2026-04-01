@@ -129,6 +129,21 @@ export default function Navbar({
     onShopsByTag?.(label);
   };
 
+  /* Mobile-only handlers — keep drawer open, only collapse sub-panel */
+  const mobileHandleShopClick = (label) => {
+    setMobileShopsOpen(false);
+    if (label === "All Shops" || label === "New Arrivals" || label === "Top Rated") {
+      onAllShopsClick?.(); return;
+    }
+    onShopsByTag?.(label);
+  };
+
+  const mobileHandleItemClick = (label) => {
+    setMobileItemsOpen(false);
+    if (label === "All Items") { onAllItemsClick?.(); return; }
+    onItemsByCategory?.(label);
+  };
+
   return (
     <>
       {/* ── Nav bar ──────────────────────────────────── */}
@@ -234,7 +249,7 @@ export default function Navbar({
                       <button
                         key={item}
                         className="mobile-accordion-item"
-                        onClick={() => handleShopClick(item)}
+                        onClick={() => mobileHandleShopClick(item)}
                       >
                         {item}
                       </button>
@@ -261,7 +276,7 @@ export default function Navbar({
                       <button
                         key={item}
                         className="mobile-accordion-item"
-                        onClick={() => handleItemClick(item)}
+                        onClick={() => mobileHandleItemClick(item)}
                       >
                         {item}
                       </button>
