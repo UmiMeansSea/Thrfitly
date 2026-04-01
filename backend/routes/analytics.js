@@ -56,7 +56,17 @@ router.get("/top-items", async (req, res) => {
       .limit(limit)
       .populate("sellerId", "shopName");
 
-    return res.status(200).json({ items: topItems });
+    // Process images with absUrl to handle both local and Cloudinary paths
+    const processedItems = topItems.map((item) => {
+      const itemObj = item.toObject();
+      // Filter and process images - only include valid Cloudinary URLs or local paths
+      itemObj.images = (itemObj.images || [])
+        .filter((img) => img && img.trim() !== "") // Remove empty/null
+        .map((img) => absUrl(img)); // Convert local paths to full URLs
+      return itemObj;
+    });
+
+    return res.status(200).json({ items: processedItems });
   } catch (err) {
     console.error("Top items error:", err);
     return res.status(500).json({ message: "Failed to fetch top items." });
@@ -75,7 +85,16 @@ router.get("/top-items-by-shop/:shopId", async (req, res) => {
       .sort({ viewCount: -1, createdAt: -1 })
       .limit(limit);
 
-    return res.status(200).json({ items });
+    // Process images with absUrl to handle both local and Cloudinary paths
+    const processedItems = items.map((item) => {
+      const itemObj = item.toObject();
+      itemObj.images = (itemObj.images || [])
+        .filter((img) => img && img.trim() !== "")
+        .map((img) => absUrl(img));
+      return itemObj;
+    });
+
+    return res.status(200).json({ items: processedItems });
   } catch (err) {
     console.error("Shop items error:", err);
     return res.status(500).json({ message: "Failed to fetch shop items." });
