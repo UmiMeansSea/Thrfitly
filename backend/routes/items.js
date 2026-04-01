@@ -106,7 +106,36 @@ Return ONLY valid JSON, no markdown or explanation.`,
 
 // ── POST /api/items ────────────────────────────────────────
 // Seller lists a new item
-router.post("/", requireApprovedSeller, upload.array("images", 5), async (req, res) => {
+router.post("/", requireApprovedSeller, (req, res, next) => {
+  // Upload middleware with error handling
+  upload.array("images", 5)(req, res, (err) => {
+    if (err) {
+      console.error("[UPLOAD ERROR]", err);
+      
+      // Cloudinary-specific errors
+      if (err.message.includes("Missing Cloudinary") || err.message.includes("ECONNREFUSED")) {
+        return res.status(503).json({ 
+          message: "Image upload service temporarily unavailable. Please try again in a moment.",
+          error: "CLOUDINARY_UNAVAILABLE"
+        });
+      }
+      
+      // File size errors
+      if (err.message.includes("File too large")) {
+        return res.status(413).json({ message: "Image too large. Max 5MB per file." });
+      }
+      
+      // Format errors
+      if (err.message.includes("Only image")) {
+        return res.status(400).json({ message: "Only image files are allowed (JPG, PNG, GIF, WebP)." });
+      }
+      
+      // Generic upload error
+      return res.status(400).json({ message: err.message || "Image upload failed." });
+    }
+    next();
+  });
+}, async (req, res) => {
   try {
     console.log("[DEBUG] POST /api/items - req.files:", req.files);
     console.log("[DEBUG] POST /api/items - req.body:", req.body);
@@ -197,7 +226,36 @@ router.delete("/:id", requireApprovedSeller, async (req, res) => {
 
 // ── PUT /api/items/:id ─────────────────────────────────────
 // Update an existing item (seller only)
-router.put("/:id", requireApprovedSeller, upload.array("images", 5), async (req, res) => {
+router.put("/:id", requireApprovedSeller, (req, res, next) => {
+  // Upload middleware with error handling
+  upload.array("images", 5)(req, res, (err) => {
+    if (err) {
+      console.error("[UPLOAD ERROR]", err);
+      
+      // Cloudinary-specific errors
+      if (err.message.includes("Missing Cloudinary") || err.message.includes("ECONNREFUSED")) {
+        return res.status(503).json({ 
+          message: "Image upload service temporarily unavailable. Please try again in a moment.",
+          error: "CLOUDINARY_UNAVAILABLE"
+        });
+      }
+      
+      // File size errors
+      if (err.message.includes("File too large")) {
+        return res.status(413).json({ message: "Image too large. Max 5MB per file." });
+      }
+      
+      // Format errors
+      if (err.message.includes("Only image")) {
+        return res.status(400).json({ message: "Only image files are allowed (JPG, PNG, GIF, WebP)." });
+      }
+      
+      // Generic upload error
+      return res.status(400).json({ message: err.message || "Image upload failed." });
+    }
+    next();
+  });
+}, async (req, res) => {
   try {
     const seller = await Seller.findOne({ userId: req.session.userId });
     if (!seller) return res.status(404).json({ message: "Seller not found." });
@@ -211,8 +269,8 @@ router.put("/:id", requireApprovedSeller, upload.array("images", 5), async (req,
     // Parse images to keep (existing images that weren't deleted)
     const keepImages = imagesToKeep ? JSON.parse(imagesToKeep) : item.images;
 
-    // Add new uploaded images
-    const newImages = req.files ? req.files.map((f) => `/uploads/${f.filename}`) : [];
+    // Add new uploaded images (now from Cloudinary - full URLs)
+    const newImages = req.files ? req.files.map((f) => f.path) : [];
 
     // Combine kept images with new images (max 5 total)
     const updatedImages = [...keepImages, ...newImages].slice(0, 5);

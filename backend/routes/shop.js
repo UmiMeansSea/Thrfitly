@@ -188,7 +188,30 @@ router.post(
       { name: "header", maxCount: 1 },
       { name: "logo", maxCount: 1 },
     ])(req, res, (err) => {
-      if (err) return res.status(400).json({ message: err.message || "Upload failed." });
+      if (err) {
+        console.error("[UPLOAD ERROR]", err);
+        
+        // Cloudinary-specific errors
+        if (err.message.includes("Missing Cloudinary") || err.message.includes("ECONNREFUSED")) {
+          return res.status(503).json({ 
+            message: "Image upload service temporarily unavailable. Please try again in a moment.",
+            error: "CLOUDINARY_UNAVAILABLE"
+          });
+        }
+        
+        // File size errors
+        if (err.message.includes("File too large")) {
+          return res.status(413).json({ message: "Image too large. Max 5MB per file." });
+        }
+        
+        // Format errors
+        if (err.message.includes("Only image")) {
+          return res.status(400).json({ message: "Only image files are allowed (JPG, PNG, GIF, WebP)." });
+        }
+        
+        // Generic upload error
+        return res.status(400).json({ message: err.message || "Upload failed." });
+      }
       next();
     });
   },
