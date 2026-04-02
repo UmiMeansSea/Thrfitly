@@ -239,7 +239,7 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
     const tempId = `pending-${Date.now()}`;
     
     // Handle uploaded images (now from Cloudinary - full HTTPS URLs)
-    const images = selectedImages.map(file => file.secure_url) || [];
+    // actual URLs come back in data.message.images after the POST
     const optimisticMessage = {
       _id: tempId,
       text,

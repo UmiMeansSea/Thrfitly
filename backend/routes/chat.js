@@ -309,8 +309,8 @@ router.post("/conversations/:conversationId/messages", chatUpload.array("images"
     const senderRole = req.session.role === "seller" ? "seller" : "buyer";
     const text = sanitizeText(req.body?.text);
     
-    // Handle uploaded images (now from Cloudinary - full HTTPS URLs)
-    const images = req.files?.map(file => file.secure_url) || [];
+    // multer-storage-cloudinary exposes the Cloudinary URL at file.path
+    const images = req.files?.map(file => file.path) || [];
     
     // Allow messages with text OR images (or both)
     if (!text && images.length === 0) {
