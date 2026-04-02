@@ -468,3 +468,31 @@
   .mega-backdrop { top: 56px; }
   .mobile-accordion-item { font-size: 14px; }
 }
+
+/* ── Unread message badge ── */
+.nav-msg-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 10px;
+  background: #e53935;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  pointer-events: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.nav-msg-badge.mobile-badge {
+  position: static;
+  margin-left: auto;
+  top: auto;
+  right: auto;
+}

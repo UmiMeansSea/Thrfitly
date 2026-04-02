@@ -81,7 +81,7 @@ export default function Navbar({
   onLoginClick, onSearchClick, onListItemClick,
   user, onCartClick, cartCount, onProfileClick, onMessagesClick,
   onAllShopsClick, onAllItemsClick, onAboutClick,
-  onShopsByTag, onItemsByCategory,
+  onShopsByTag, onItemsByCategory, unreadMsgCount = 0,
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(null); // "shops" | "items" | null
@@ -189,7 +189,12 @@ export default function Navbar({
                 🛒
                 {cartCount > 0 && <span className="nav-cart-badge">{cartCount > 9 ? "9+" : cartCount}</span>}
               </button>
-              <button className="btn-nav-cart nav-desktop-only" onClick={() => { close(); onMessagesClick(); }}>💬</button>
+              <button className="btn-nav-cart nav-desktop-only" onClick={() => { close(); onMessagesClick(); }} style={{ position: "relative" }}>
+                💬
+                {unreadMsgCount > 0 && (
+                  <span className="nav-msg-badge">{unreadMsgCount > 9 ? "9+" : unreadMsgCount}</span>
+                )}
+              </button>
               {user.role === "seller" && (
                 <button className="btn-nav-fill nav-desktop-only" onClick={() => { close(); onListItemClick(); }}>+ List Item</button>
               )}
@@ -295,7 +300,12 @@ export default function Navbar({
             <button className="mobile-drawer-link" onClick={() => { close(); onAboutClick?.(); }}>About Us</button>
             {user ? (
               <>
-                <button className="mobile-drawer-link" onClick={() => { close(); onMessagesClick?.(); }}>💬 Messages</button>
+                <button className="mobile-drawer-link" onClick={() => { close(); onMessagesClick?.(); }}>
+                  💬 Messages
+                  {unreadMsgCount > 0 && (
+                    <span className="nav-msg-badge mobile-badge">{unreadMsgCount > 9 ? "9+" : unreadMsgCount}</span>
+                  )}
+                </button>
                 <button className="mobile-drawer-link" onClick={() => { close(); onProfileClick?.(); }}>👤 My Account</button>
                 {user.role === "seller" && (
                   <button className="mobile-drawer-link mobile-drawer-cta" onClick={() => { close(); onListItemClick?.(); }}>+ List Item</button>

@@ -43,9 +43,16 @@ function avatarColor(name = "") {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-export default function MessagesPage({ user, initialChatContext, onBack }) {
+const MOBILE_BP = 768;
+function isMobile() { return window.innerWidth <= MOBILE_BP; }
+
+export default function MessagesPage({ user, initialChatContext, onBack, onUnreadCount }) {
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
+  // "list" | "chat" — controls which panel is visible on mobile
+  const [mobileView, setMobileView] = useState("list");
+  // Set of conversationIds with unread messages from others
+  const [unreadIds, setUnreadIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
@@ -133,6 +140,14 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
     setActiveConversation(data.conversation);
     setMessages(data.messages || []);
     socket.emit("chat:join-conversation", conversationId);
+    if (isMobile()) setMobileView("chat");
+    // Mark conversation as read
+    setUnreadIds((prev) => {
+      const next = new Set(prev);
+      next.delete(conversationId);
+      onUnreadCount?.(next.size);
+      return next;
+    });
   };
 
   useEffect(() => {
@@ -181,6 +196,14 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
           if (prev.some((m) => m._id === message._id)) return prev;
           const stripped = prev.filter((m) => !(m.pending && m.text === message.text && m.senderId === message.senderId));
           return [...stripped, message];
+        });
+      } else if (message.senderId !== user?.id) {
+        // New message in a background conversation — mark unread
+        setUnreadIds((prev) => {
+          const next = new Set(prev);
+          next.add(message.conversationId);
+          onUnreadCount?.(next.size);
+          return next;
         });
       }
     };
@@ -283,11 +306,11 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
 
   return (
     <div className="messages-page">
-      <div className="messages-topbar">
+      <div className={`messages-topbar ${mobileView === "chat" ? "topbar-hidden-mobile" : ""}`}>
         <button onClick={onBack} className="messages-back">← Back</button>
         <h2>Messages</h2>
       </div>
-      <div className="messages-layout">
+      <div className={`messages-layout mobile-view-${mobileView}`}>
         <aside className="messages-list">
           <div className="messages-list-header">
             <span>Chats</span>
@@ -301,13 +324,10 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
               <button
                 key={c._id}
                 type="button"
-                className={`conv-item ${isActive ? "active" : ""}`}
+                className={`conv-item ${isActive ? "active" : ""} ${unreadIds.has(c._id) ? "unread" : ""}`}
                 onClick={() => loadMessages(c._id)}
               >
-                <div
-                  className="conv-avatar"
-                  style={{ background: avatarColor(name) }}
-                >
+                <div className="conv-avatar" style={{ background: avatarColor(name) }}>
                   {getInitials(name)}
                 </div>
                 <div className="conv-info">
@@ -317,6 +337,7 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
                   </div>
                   <div className="conv-row-bottom">
                     <span className="conv-sub">{lastMsg}</span>
+                    {unreadIds.has(c._id) && <span className="conv-unread-dot" />}
                   </div>
                 </div>
                 <span
@@ -334,13 +355,25 @@ export default function MessagesPage({ user, initialChatContext, onBack }) {
           {activeConversation ? (
             <>
               <div className="chat-header">
-                <div>
-                  <strong>{activeConversation.shopName || activeConversation.productName || "Chat"}</strong>
-                  {activeConversation.shopName && activeConversation.productName && (
-                    <div className="chat-header-sub">{activeConversation.productName}</div>
-                  )}
+                <button
+                  className="chat-back-mobile"
+                  onClick={() => setMobileView("list")}
+                  aria-label="Back to chats"
+                >
+                  ←
+                </button>
+                <div className="chat-header-info">
+                  <div className="chat-header-avatar" style={{ background: avatarColor(activeConversation.shopName || activeConversation.productName || "") }}>
+                    {getInitials(activeConversation.shopName || activeConversation.productName || "?")}
+                  </div>
+                  <div>
+                    <strong>{activeConversation.shopName || activeConversation.productName || "Chat"}</strong>
+                    {activeConversation.shopName && activeConversation.productName && (
+                      <div className="chat-header-sub">{activeConversation.productName}</div>
+                    )}
+                  </div>
                 </div>
-                <span>₹{Number(activeConversation.productPrice || 0).toLocaleString()}</span>
+                <span className="chat-header-price">₹{Number(activeConversation.productPrice || 0).toLocaleString()}</span>
               </div>
               <div className="chat-body">
                 {messages.map((m) => (

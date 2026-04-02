@@ -49,14 +49,49 @@
 
 @media (max-width: 840px) {
   .messages-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-columns: minmax(220px, 280px) 1fr;
   }
-  .messages-list {
-    max-height: 220px;
-    border-right: none;
-    border-bottom: 1px solid rgba(26, 21, 16, 0.08);
-  }
+}
+
+/* Mobile back button in chat header — hidden on desktop */
+.chat-back-mobile {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #3d3428;
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.chat-header-info {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #fff;
+}
+
+.chat-header-price {
+  font-weight: 700;
+  color: #5c6b3a;
+  font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
 .messages-list {
@@ -192,11 +227,12 @@
 
 .chat-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1rem 1.25rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
   background: #fff;
   border-bottom: 1px solid rgba(26, 21, 16, 0.08);
+  min-height: 64px;
 }
 
 .chat-header strong {
@@ -300,7 +336,75 @@
 }
 
 @media (max-width: 768px) {
-  .messages-layout { flex-direction: column; height: auto; }
-  .messages-sidebar { width: 100%; height: auto; max-height: 280px; border-right: none; border-bottom: 1px solid rgba(45,36,22,0.08); }
-  .messages-chat { height: 60vh; }
+  /* Full-screen layout on mobile */
+  .messages-page {
+    min-height: 100dvh;
+  }
+
+  .messages-topbar.topbar-hidden-mobile {
+    display: none;
+  }
+
+  .messages-layout {
+    grid-template-columns: 1fr;
+    min-height: 100dvh;
+    max-width: 100%;
+    box-shadow: none;
+  }
+
+  /* Show only the list panel when mobileView === "list" */
+  .messages-layout.mobile-view-list .messages-list {
+    display: flex;
+  }
+  .messages-layout.mobile-view-list .messages-chat {
+    display: none;
+  }
+
+  /* Show only the chat panel when mobileView === "chat" */
+  .messages-layout.mobile-view-chat .messages-list {
+    display: none;
+  }
+  .messages-layout.mobile-view-chat .messages-chat {
+    display: flex;
+    height: 100dvh;
+  }
+
+  /* Mobile chat header: show back button */
+  .chat-back-mobile {
+    display: flex;
+  }
+
+  /* Make bubbles a bit wider on mobile */
+  .bubble {
+    max-width: 85%;
+  }
+
+  .chat-body {
+    padding: 0.75rem;
+  }
+}
+
+/* ── Unread indicators in sidebar ── */
+.conv-unread-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #5c6b3a;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.conv-item.unread .conv-title {
+  font-weight: 750;
+  color: #1a1510;
+}
+
+.conv-item.unread .conv-sub {
+  color: #3d3428;
+  font-weight: 500;
+}
+
+.conv-item.unread .conv-time {
+  color: #5c6b3a;
+  font-weight: 600;
 }

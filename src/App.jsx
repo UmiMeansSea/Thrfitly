@@ -31,6 +31,7 @@ export default function App() {
   const [navSearchInitQuery, setNavSearchInitQuery] = useState("");
   const [navSearchInitCategory, setNavSearchInitCategory] = useState("All");
   const [navFilterShopTag, setNavFilterShopTag] = useState(null);
+  const [unreadMsgCount, setUnreadMsgCount] = useState(0);
   const API_BASE = import.meta.env?.VITE_API_ORIGIN ? `${import.meta.env.VITE_API_ORIGIN}/api` : "http://localhost:5000/api";
 
   // ---------- Auth persistence with cookies ------------------------------------------
@@ -447,6 +448,7 @@ export default function App() {
         user={user}
         initialChatContext={initialChatContext}
         onBack={goHome}
+        onUnreadCount={setUnreadMsgCount}
       />
     );
   } else if (page === "account") {
@@ -482,6 +484,7 @@ export default function App() {
           onAboutClick={goAbout}
           onShopsByTag={goShopsByTag}
           onItemsByCategory={(cat) => goAllItems(cat)}
+          unreadMsgCount={unreadMsgCount}
         />
         <Hero onLoginClick={goLogin} />
         <HowItWorks user={user} />
